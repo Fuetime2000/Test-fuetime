@@ -9,7 +9,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONHASHSEED=random \
     PIP_NO_CACHE_DIR=off \
     PIP_DISABLE_PIP_VERSION_CHECK=on \
-    PIP_DEFAULT_TIMEOUT=100
+    PIP_DEFAULT_TIMEOUT=100 \
+    FLASK_APP=app.py \
+    FLASK_ENV=production
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -18,12 +20,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Install dependencies
+# Install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy project
+# Copy application code
 COPY . .
 
-# Set the command to run the application
+# Expose the port the app runs on
+EXPOSE 10000
+
+# Command to run the application
 CMD ["gunicorn", "--bind", "0.0.0.0:10000", "--worker-class", "eventlet", "--workers", "1", "app:app"]
