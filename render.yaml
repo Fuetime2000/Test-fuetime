@@ -2,11 +2,9 @@ services:
   - type: web
     name: fuetime
     runtime: python
-    buildCommand: bash build.sh
-    startCommand: gunicorn --worker-class eventlet --workers 1 app:app
+    buildCommand: pip install --no-cache-dir -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:10000 --worker-class eventlet --workers 1 app:app
     envVars:
-      - key: PYTHON_VERSION
-        value: 3.11.9
       - key: FLASK_APP
         value: app.py
       - key: FLASK_ENV
