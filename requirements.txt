@@ -6,8 +6,8 @@ itsdangerous==2.1.2
 click==8.1.7
 
 # Database
-Flask-SQLAlchemy==3.0.5
-SQLAlchemy==1.4.50
+Flask-SQLAlchemy==3.1.1  # Updated for SQLAlchemy 2.0 compatibility
+SQLAlchemy==2.0.41  # Updated for Python 3.13 compatibility
 
 # Authentication & Security
 Flask-Login==0.6.3
