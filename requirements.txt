@@ -20,9 +20,11 @@ email-validator==2.1.0.post1
 # Real-time Communication
 Flask-SocketIO==5.3.5
 python-socketio==5.7.2
+# Using eventlet instead of gevent for better Python 3.13 compatibility
 eventlet==0.33.3
-gevent==23.9.1
-gevent-websocket==0.10.1
+# gevent and gevent-websocket are commented out as they're not compatible with Python 3.13 yet
+# gevent==23.9.1
+# gevent-websocket==0.10.1
 
 # Internationalization
 Flask-Babel==4.0.0

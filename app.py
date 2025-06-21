@@ -4891,7 +4891,7 @@ if __name__ == '__main__':
         try:
             socketio.init_app(app,
                            cors_allowed_origins="*",
-                           async_mode='gevent',
+                           async_mode='eventlet',
                            engineio_logger=True,
                            logger=True,
                            ping_timeout=60,
