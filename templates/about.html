@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _('About Us') }} - FueTime{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        color: white;
+        padding: 5rem 0;
+        margin-bottom: 3rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("{{ url_for('static', filename='images/pattern.png') }}") center/cover;
+        opacity: 0.1;
+        z-index: 0;
+    }
+    
+    .hero-content {
+        position: relative;
+        z-index: 1;
+    }
+    
+    .feature-card {
+        border: none;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%;
+        background: white;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    }
+    
+    .feature-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+        color: #2a5298;
+        transition: transform 0.3s ease;
+    }
+    
+    .feature-card:hover .feature-icon {
+        transform: scale(1.1);
+    }
+    
+    .value-item {
+        background: #f8f9fa;
+        border-left: 4px solid #2a5298;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 0 8px 8px 0;
+        transition: all 0.3s ease;
+    }
+    
+    .value-item:hover {
+        background: #e9ecef;
+        transform: translateX(5px);
+    }
+    
+    .team-member {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .team-img {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 5px solid white;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        margin-bottom: 1rem;
+        transition: transform 0.3s ease;
+    }
+    
+    .team-member:hover .team-img {
+        transform: scale(1.05);
+    }
+    
+    .cta-section {
+        background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
+        color: white;
+        padding: 4rem 0;
+        margin-top: 4rem;
+        border-radius: 15px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .contact-info {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    @media (max-width: 768px) {
+        .hero-section {
+            padding: 3rem 0;
+        }
+        
+        .feature-card {
+            margin-bottom: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8 mx-auto text-center hero-content">
+                <h1 class="display-4 fw-bold mb-4">{{ _('About FueTime') }}</h1>
+                <p class="lead mb-0">{{ _('India First and super fast hiring platform only 5 second hiring time') }}</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Mission Section -->
+<section class="mb-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card border-0 shadow-sm mb-5">
+                    <div class="card-body p-5">
+                        <h2 class="h3 text-center mb-4">{{ _('Our Mission') }}</h2>
+                        <p class="lead text-center mb-0">
+                            {{ _('FueTime is dedicated to connecting skilled professionals with those who need their services, creating opportunities and fostering meaningful connections in communities across India.') }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-5">{{ _('What We Offer') }}</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card p-4 text-center h-100">
+                    <i class="fas fa-handshake feature-icon"></i>
+                    <h3 class="h5 mb-3">{{ _('Trusted Connections') }}</h3>
+                    <p class="text-muted">{{ _('We verify professionals through a rigorous process to ensure you receive only the highest quality service.') }}</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card p-4 text-center h-100">
+                    <i class="fas fa-shield-alt feature-icon"></i>
+                    <h3 class="h5 mb-3">{{ _('Secure Platform') }}</h3>
+                    <p class="text-muted">{{ _('Your safety is our priority with end-to-end encrypted communications and secure payment processing.') }}</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card p-4 text-center h-100">
+                    <i class="fas fa-users feature-icon"></i>
+                    <h3 class="h5 mb-3">{{ _('Community Focus') }}</h3>
+                    <p class="text-muted">{{ _('We believe in building stronger local communities by supporting local talent and fostering economic growth.') }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Values Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <h2 class="mb-4">{{ _('Our Values') }}</h2>
+                <div class="value-item mb-3">
+                    <h4 class="h6 mb-1">{{ _('Trust and Transparency') }}</h4>
+                    <p class="mb-0 text-muted">{{ _('We believe in open communication and building trust with our community.') }}</p>
+                </div>
+                <div class="value-item mb-3">
+                    <h4 class="h6 mb-1">{{ _('Quality Service') }}</h4>
+                    <p class="mb-0 text-muted">{{ _('We maintain high standards to ensure exceptional service for all users.') }}</p>
+                </div>
+                <div class="value-item mb-3">
+                    <h4 class="h6 mb-1">{{ _('Community Empowerment') }}</h4>
+                    <p class="mb-0 text-muted">{{ _('We empower individuals by creating economic opportunities.') }}</p>
+                </div>
+                <div class="value-item">
+                    <h4 class="h6 mb-1">{{ _('Inclusive Growth') }}</h4>
+                    <p class="mb-0 text-muted">{{ _('We\'re committed to creating opportunities for everyone in our community.') }}</p>
+                </div>
+            </div>
+            <div class="col-lg-6 mt-5 mt-lg-0">
+                <div class="contact-info">
+                    <h3 class="h4 mb-4">{{ _('Get In Touch') }}</h3>
+                    <p class="mb-4">{{ _('Have questions or feedback? We\'d love to hear from you!') }}</p>
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-envelope me-3 text-primary"></i>
+                        <span>support@fuetime.com</span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-phone-alt me-3 text-primary"></i>
+                        <span>+91 12345 67890</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h2 class="mb-4">{{ _('Ready to get started?') }}</h2>
+                <p class="lead mb-4">{{ _('Join thousands of professionals and clients who trust FueTime for their service needs.') }}</p>
+                <a href="{{ url_for('auth.signup') }}" class="btn btn-light btn-lg px-5">{{ _('Join Now') }}</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Help Request Details</h1>
+        <a href="{{ url_for('admin_help_requests') }}" class="btn btn-secondary">Back to List</a>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Request Information</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Ticket ID:</strong> {{ help_request.ticket_id }}</p>
+                    <p><strong>User:</strong> {{ help_request.user.full_name }}</p>
+                    <p><strong>Subject:</strong> {{ help_request.subject }}</p>
+                    <p><strong>Created:</strong> {{ help_request.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                    <p><strong>Last Updated:</strong> {{ help_request.updated_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                    <p><strong>Current Status:</strong> 
+                        <span class="badge {% if help_request.status == 'pending' %}bg-warning
+                                         {% elif help_request.status == 'in_progress' %}bg-info
+                                         {% else %}bg-success{% endif %}">
+                            {{ help_request.status|title }}
+                        </span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Description</h5>
+                </div>
+                <div class="card-body">
+                    <p>{{ help_request.description }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Update Request</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('admin_help_request', ticket_id=help_request.ticket_id) }}" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" id="status" name="status">
+                                <option value="pending" {% if help_request.status == 'pending' %}selected{% endif %}>
+                                    Pending
+                                </option>
+                                <option value="in_progress" {% if help_request.status == 'in_progress' %}selected{% endif %}>
+                                    In Progress
+                                </option>
+                                <option value="resolved" {% if help_request.status == 'resolved' %}selected{% endif %}>
+                                    Resolved
+                                </option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="solution" class="form-label">Solution</label>
+                            <textarea class="form-control" id="solution" name="solution" rows="6">{{ help_request.solution or '' }}</textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Update Request</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

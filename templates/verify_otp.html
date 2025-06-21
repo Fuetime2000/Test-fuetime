@@ -1,0 +1,582 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .otp-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #6e8efb 0%, #a777e3 100%);
+        padding: 20px;
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    .otp-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        max-width: 500px;
+        width: 100%;
+        margin: auto;
+    }
+
+    .otp-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .otp-header {
+        background: linear-gradient(45deg, #6e8efb, #a777e3);
+        padding: 30px 20px;
+        text-align: center;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .otp-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+        animation: headerGlow 10s infinite linear;
+    }
+
+    @keyframes headerGlow {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .otp-header h4 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 600;
+    }
+
+    .otp-body {
+        padding: 40px 30px;
+    }
+
+    .otp-message {
+        text-align: center;
+        color: #666;
+        font-size: 16px;
+        line-height: 1.6;
+        margin-bottom: 30px;
+    }
+
+    .otp-input-group {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin-bottom: 25px;
+    }
+
+    .otp-input {
+        width: 50px;
+        height: 50px;
+        border: 2px solid #ddd;
+        border-radius: 12px;
+        text-align: center;
+        font-size: 24px;
+        font-weight: 600;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .otp-input:not(:placeholder-shown) {
+        border-color: #6e8efb;
+        background: rgba(110, 142, 251, 0.1);
+    }
+
+    .otp-input:focus {
+        border-color: #1a73e8;
+        box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.2);
+        outline: none;
+    }
+
+    .verify-btn {
+        background: linear-gradient(45deg, #6e8efb, #a777e3);
+        color: white;
+        border: none;
+        padding: 14px 40px;
+        border-radius: 25px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        width: 100%;
+        max-width: 200px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .verify-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: 0.5s;
+    }
+
+    .verify-btn:hover::before {
+        left: 100%;
+    }
+
+    .verify-btn.loading {
+        pointer-events: none;
+        opacity: 0.8;
+    }
+
+    .verify-btn.loading::after {
+        content: '';
+        width: 20px;
+        height: 20px;
+        border: 2px solid #ffffff;
+        border-radius: 50%;
+        border-top-color: transparent;
+        animation: spin 0.8s linear infinite;
+        margin-left: 8px;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .verify-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(26, 115, 232, 0.4);
+    }
+
+    .resend-link {
+        text-align: center;
+        margin-top: 25px;
+        color: #666;
+    }
+
+    .resend-link button {
+        background: none;
+        border: none;
+        color: #1a73e8;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        padding: 0;
+    }
+
+    .resend-link button:disabled {
+        color: #999;
+        cursor: not-allowed;
+    }
+
+    .resend-link button:not(:disabled):hover {
+        color: #1557b0;
+        text-decoration: underline;
+    }
+
+    .countdown {
+        display: inline-block;
+        margin-left: 5px;
+        font-size: 14px;
+        color: #666;
+    }
+
+    .toast {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 16px 25px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        max-width: 300px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .toast.success {
+        border-left: 4px solid #4caf50;
+    }
+
+    .toast.error {
+        border-left: 4px solid #f44336;
+    }
+
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    .alert {
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+        animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateY(-20px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .otp-container {
+            padding: 15px;
+        }
+
+        .otp-body {
+            padding: 25px 20px;
+        }
+
+        .otp-input {
+            width: 42px;
+            height: 42px;
+            font-size: 20px;
+        }
+
+        .otp-header h4 {
+            font-size: 20px;
+        }
+
+        .otp-message {
+            font-size: 14px;
+        }
+
+        .verify-btn {
+            padding: 12px 30px;
+            font-size: 15px;
+        }
+    }
+
+    @media (max-width: 360px) {
+        .otp-input {
+            width: 35px;
+            height: 35px;
+            font-size: 18px;
+        }
+
+        .otp-input-group {
+            gap: 8px;
+        }
+    }
+</style>
+
+<div class="otp-container">
+    <div class="otp-card">
+        <div class="otp-header">
+            <h4>Verify Your Email</h4>
+        </div>
+        <div class="otp-body">
+            <div class="otp-message">
+                <p>We've sent a verification code to your email address. Please enter it below to complete your registration.</p>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST" action="{{ url_for('verify_otp') }}" id="otpForm" onsubmit="return submitForm(event)">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="otp" id="otpFinal">
+                
+                <div class="otp-input-group">
+                    <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+                    <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+                    <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+                    <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+                    <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+                    <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+                </div>
+
+                <button type="submit" class="verify-btn">Verify Code</button>
+            </form>
+
+            <div class="resend-link">
+                <p>
+                    Didn't receive the code? 
+                    <button id="resendBtn" onclick="resendOTP()" disabled>Resend code</button>
+                    <span id="countdown" class="countdown">(60s)</span>
+                </p>
+            </div>
+            <div id="toast" class="toast" style="display: none;">
+                <span id="toastMessage"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function submitForm(e) {
+    e.preventDefault();
+    const inputs = document.querySelectorAll('.otp-input');
+    const otp = Array.from(inputs).map(input => input.value).join('');
+    
+    if (otp.length === 6 && /^\d+$/.test(otp)) {
+        document.getElementById('otpFinal').value = otp;
+        document.getElementById('otpForm').submit();
+        return true;
+    } else {
+        showToast('Please enter a valid 6-digit OTP', 'error');
+        return false;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize countdown variables at the top
+    let countdownTime = 60;
+    let countdownTimer = null;
+    const countdownEl = document.getElementById('countdown');
+    const resendBtn = document.getElementById('resendBtn');
+    
+    const inputs = document.querySelectorAll('.otp-input');
+    const form = document.getElementById('otpForm');
+    const otpFinal = document.getElementById('otpFinal');
+    
+    // Start the countdown timer
+    startCountdown();
+
+    // Auto-focus the first input on page load
+    if (inputs.length > 0) {
+        inputs[0].focus();
+    }
+
+    // Handle input and navigation
+    inputs.forEach((input, index) => {
+        // Auto-tab to next input on number input
+        input.addEventListener('input', function(e) {
+            if (this.value.length === 1) {
+                if (index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                } else {
+                    this.blur(); // Remove focus from last input
+                }
+                // Auto-submit when last digit is entered
+                if (index === inputs.length - 1) {
+                    const otp = Array.from(inputs).map(input => input.value).join('');
+                    if (otp.length === 6) {
+                        otpFinal.value = otp;
+                        form.submit();
+                    }
+                }
+            }
+        });
+
+        // Handle backspace and left/right arrow keys
+        input.addEventListener('keydown', function(e) {
+            // Move to previous input on backspace when empty
+            if (e.key === 'Backspace' && !this.value && index > 0) {
+                e.preventDefault();
+                inputs[index - 1].focus();
+            }
+            // Move to previous input on left arrow key
+            else if (e.key === 'ArrowLeft' && index > 0) {
+                e.preventDefault();
+                inputs[index - 1].focus();
+            }
+            // Move to next input on right arrow key
+            else if (e.key === 'ArrowRight' && index < inputs.length - 1) {
+                e.preventDefault();
+                inputs[index + 1].focus();
+            }
+            // Handle home/end keys
+            else if (e.key === 'Home') {
+                e.preventDefault();
+                inputs[0].focus();
+            }
+            else if (e.key === 'End') {
+                e.preventDefault();
+                inputs[inputs.length - 1].focus();
+            }
+        });
+
+        // Allow only numbers
+        input.addEventListener('keypress', function(e) {
+            if (!/\d/.test(e.key)) {
+                e.preventDefault();
+            }
+        });
+
+        // Handle paste event
+        input.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+            if (/^\d+$/.test(pastedText)) {
+                const digits = pastedText.split('').slice(0, 6); // Only take first 6 digits
+                inputs.forEach((input, idx) => {
+                    input.value = digits[idx] || '';
+                });
+                // Focus on the last input with a value or the last input if all are filled
+                const lastFilledIndex = Math.min(digits.length - 1, inputs.length - 1);
+                inputs[lastFilledIndex].focus();
+                
+                // Auto-submit if we have exactly 6 digits
+                if (digits.length === 6) {
+                    otpFinal.value = digits.join('');
+                    form.submit();
+                }
+            }
+        });
+        
+        // Handle click to select all text in the input
+        input.addEventListener('click', function() {
+            this.select();
+        });
+    });
+
+    // Form submission
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const otp = Array.from(inputs).map(input => input.value).join('');
+        
+        if (otp.length === 6 && /^\d+$/.test(otp)) {
+            otpFinal.value = otp;
+            this.submit();
+        } else {
+            showToast('Please enter a valid 6-digit OTP', 'error');
+            // Find first empty input and focus it
+            const firstEmpty = Array.from(inputs).findIndex(input => !input.value);
+            if (firstEmpty !== -1) {
+                inputs[firstEmpty].focus();
+            }
+        }
+    });
+
+    // Countdown functions
+
+    function startCountdown() {
+        // Clear any existing timer
+        if (countdownTimer) {
+            clearInterval(countdownTimer);
+            countdownTimer = null;
+        }
+
+        resendBtn.disabled = true;
+        updateCountdown();
+
+        countdownTimer = setInterval(() => {
+            countdownTime--;
+            if (countdownTime <= 0) {
+                clearInterval(countdownTimer);
+                countdownTimer = null;
+                resendBtn.disabled = false;
+                countdownEl.textContent = '';
+            } else {
+                updateCountdown();
+            }
+        }, 1000);
+    }
+
+    function updateCountdown() {
+        if (countdownTime > 0) {
+            countdownEl.textContent = `(${countdownTime}s)`;
+        } else {
+            countdownEl.textContent = '';
+            resendBtn.disabled = false;
+        }
+    }
+});
+
+function showToast(message, type = 'success') {
+    const toast = document.getElementById('toast');
+    const toastMessage = document.getElementById('toastMessage');
+    
+    toast.className = `toast ${type}`;
+    toastMessage.textContent = message;
+    toast.style.display = 'flex';
+
+    setTimeout(() => {
+        toast.style.display = 'none';
+    }, 5000);
+}
+
+function resendOTP() {
+    // Disable button immediately to prevent double-clicks
+    const resendBtn = document.getElementById('resendBtn');
+    if (resendBtn.disabled) return;
+    
+    resendBtn.disabled = true;
+    const csrfToken = document.querySelector('input[name=csrf_token]').value;
+    
+    fetch('/resend-otp', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        credentials: 'same-origin'
+    })
+    .then(response => response.json().then(data => ({ status: response.status, data })))
+    .then(({ status, data }) => {
+        if (status === 200) {
+            showToast(data.message, 'success');
+            startCountdown();
+            // Clear all input fields
+            document.querySelectorAll('.otp-input').forEach(input => input.value = '');
+            document.querySelector('.otp-input').focus();
+        } else {
+            showToast(data.message, 'error');
+            if (status === 400) {
+                // Redirect to registration if no pending verification
+                setTimeout(() => window.location.href = '/register/client', 2000);
+            } else if (status === 429) {
+                // Keep button disabled and show remaining time
+                const match = data.message.match(/(\d+)/); // Extract seconds from message
+                if (match) {
+                    countdownTime = parseInt(match[0]);
+                    updateCountdown();
+                }
+            } else {
+                // For other errors, re-enable the button
+                resendBtn.disabled = false;
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Failed to resend OTP. Please try again.', 'error');
+        resendBtn.disabled = false;
+    });
+}
+</script>
+{% endblock %}

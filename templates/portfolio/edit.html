@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid py-5 bg-light">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-header bg-primary text-white py-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <h3 class="mb-0 fw-bold">{{ 'Create' if not portfolio else 'Edit' }} Portfolio</h3>
+                        <span class="badge bg-light text-primary">{{ current_user.username }}</span>
+                    </div>
+                </div>
+                <div class="card-body p-4 p-lg-5">
+                    <form method="POST" class="needs-validation" novalidate>
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        
+                        <!-- Portfolio Title -->
+                        <div class="mb-4">
+                            <label for="title" class="form-label fw-bold">Portfolio Title</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-heading"></i></span>
+                                <input type="text" class="form-control form-control-lg" id="title" name="title" 
+                                    value="{{ portfolio.title if portfolio else '' }}" required
+                                    placeholder="Enter a captivating title">
+                            </div>
+                            <div class="form-text text-muted">Make it memorable and professional</div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-4">
+                            <label for="description" class="form-label fw-bold">Professional Summary</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-pen-fancy"></i></span>
+                                <textarea class="form-control form-control-lg" id="description" name="description" 
+                                    rows="6" required placeholder="Share your professional journey, skills, and aspirations"
+                                    style="resize: vertical; min-height: 150px;">{{ portfolio.description if portfolio else '' }}</textarea>
+                            </div>
+                            <div class="form-text text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Highlight your expertise, achievements, and what makes you unique
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex flex-column flex-sm-row justify-content-between gap-3 mt-5">
+                            <a href="{{ url_for('portfolio.view_portfolio', user_id=current_user.id) }}" 
+                               class="btn btn-outline-secondary btn-lg px-4">
+                                <i class="fas fa-arrow-left me-2"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg px-5">
+                                <i class="fas fa-save me-2"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tips Card -->
+            <div class="card shadow-sm border-0 rounded-lg mt-4">
+                <div class="card-body p-4">
+                    <h5 class="card-title fw-bold mb-3">
+                        <i class="fas fa-lightbulb text-warning me-2"></i>
+                        Portfolio Tips
+                    </h5>
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-check-circle text-success mt-1 me-2"></i>
+                                <p class="mb-0">Keep your description clear and concise</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-check-circle text-success mt-1 me-2"></i>
+                                <p class="mb-0">Highlight your key achievements</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-check-circle text-success mt-1 me-2"></i>
+                                <p class="mb-0">Use professional language</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-check-circle text-success mt-1 me-2"></i>
+                                <p class="mb-0">Update regularly to stay relevant</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Styles -->
+<style>
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+}
+
+.input-group-text {
+    background-color: #f8f9fa;
+    border-right: none;
+}
+
+.form-control {
+    border-left: none;
+}
+
+.input-group:focus-within .input-group-text {
+    border-color: #0d6efd;
+}
+
+.card {
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+</style>
+{% endblock %}

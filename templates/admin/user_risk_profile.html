@@ -1,0 +1,148 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="container mt-4 py-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="text-primary mb-0">Risk Profile</h2>
+                    <p class="text-muted mb-0">{{ user.username }}</p>
+                </div>
+                <a href="{{ url_for('admin_user_detail', username=user.username) }}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to User Details
+                </a>
+            </div>
+            <hr class="my-4">
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm hover-shadow transition-all">
+                <div class="card-body text-center p-4">
+                    <div class="icon-wrapper mb-3">
+                        <i class="fas fa-shield-alt fa-2x text-{{ 'danger' if risk_profile.risk_level == 'high' else 'warning' if risk_profile.risk_level == 'medium' else 'info' }}"></i>
+                    </div>
+                    <h5 class="card-title text-uppercase mb-3">Risk Level</h5>
+                    <div class="mb-2">
+                        <span class="badge bg-{{ 'danger' if risk_profile.risk_level == 'high' else 'warning' if risk_profile.risk_level == 'medium' else 'info' }} p-2 fs-5">
+                            {{ risk_profile.risk_level|upper }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm hover-shadow transition-all">
+                <div class="card-body text-center p-4">
+                    <div class="icon-wrapper mb-3">
+                        <i class="fas fa-chart-line fa-2x text-primary"></i>
+                    </div>
+                    <h5 class="card-title text-uppercase mb-3">Risk Score</h5>
+                    <div class="fs-3 fw-bold text-primary">
+                        {{ "%.2f"|format(risk_profile.average_risk_score) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm hover-shadow transition-all">
+                <div class="card-body text-center p-4">
+                    <div class="icon-wrapper mb-3">
+                        <i class="fas fa-exclamation-triangle fa-2x text-warning"></i>
+                    </div>
+                    <h5 class="card-title text-uppercase mb-3">Total Alerts</h5>
+                    <div class="fs-3 fw-bold text-warning">
+                        {{ risk_profile.alert_count }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <h4 class="mb-0"><i class="fas fa-bell text-warning me-2"></i>Recent Alerts</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Type</th>
+                                    <th>Severity</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for alert in recent_alerts %}
+                                <tr>
+                                    <td>{{ alert.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                                    <td>{{ alert.alert_type }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ 'danger' if alert.severity == 'high' else 'warning' if alert.severity == 'medium' else 'info' }}">
+                                            {{ alert.severity }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if alert.is_resolved else 'secondary' }}">
+                                            {{ 'Resolved' if alert.is_resolved else 'Pending' }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% if not recent_alerts %}
+                    <p class="text-center text-muted">No recent alerts found.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <h4 class="mb-0"><i class="fas fa-user-clock text-primary me-2"></i>Recent Behaviors</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Action</th>
+                                    <th>Risk Score</th>
+                                    <th>IP Address</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for behavior in recent_behaviors %}
+                                <tr>
+                                    <td>{{ behavior.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                                    <td>{{ behavior.action_type }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ 'danger' if behavior.risk_score >= 0.8 else 'warning' if behavior.risk_score >= 0.5 else 'info' }}">
+                                            {{ "%.2f"|format(behavior.risk_score) }}
+                                        </span>
+                                    </td>
+                                    <td>{{ behavior.ip_address }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% if not recent_behaviors %}
+                    <p class="text-center text-muted">No recent behaviors found.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

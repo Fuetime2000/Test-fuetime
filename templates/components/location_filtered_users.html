@@ -1,0 +1,57 @@
+{% for user_data in users %}
+<div class="col-md-6 col-lg-4 mb-4">
+    <div class="card h-100 border-0 shadow-sm">
+        <div class="card-body">
+            <div class="d-flex align-items-center mb-3">
+                <img src="{{ user_data.user.photo if user_data.user.photo else url_for('static', filename='images/default-avatar.png') }}" 
+                     alt="{{ user_data.user.full_name }}" 
+                     class="rounded-circle me-3"
+                     style="width: 60px; height: 60px; object-fit: cover;">
+                <div>
+                    <h5 class="card-title mb-1">
+                        <a href="{{ url_for('profile', user_id=user_data.user.id) }}" class="text-decoration-none text-dark">
+                            {{ user_data.user.full_name }}
+                        </a>
+                    </h5>
+                    <p class="text-muted mb-0">
+                        <i class="fas fa-map-marker-alt me-1"></i>
+                        {{ user_data.distance }} km away
+                    </p>
+                </div>
+            </div>
+            
+            {% if user_data.user.skills %}
+            <div class="mb-3">
+                <small class="text-muted">{{ _('Skills') }}:</small><br>
+                {% for skill in user_data.user.skills.split(',')[:3] %}
+                <span class="badge bg-light text-dark me-1">{{ skill.strip() }}</span>
+                {% endfor %}
+                {% if user_data.user.skills.split(',')|length > 3 %}
+                <small class="text-muted">{{ _('and more...') }}</small>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    {% if user_data.user.average_rating > 0 %}
+                    <span class="text-warning">
+                        <i class="fas fa-star"></i>
+                    </span>
+                    <small class="text-muted">{{ "%.1f"|format(user_data.user.average_rating) }} ({{ user_data.user.total_reviews }})</small>
+                    {% endif %}
+                </div>
+                <a href="{{ url_for('profile', user_id=user_data.user.id) }}" class="btn btn-outline-primary btn-sm">
+                    {{ _('View Profile') }}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="col-12">
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i>{{ _('No users found in this area.') }}
+    </div>
+</div>
+{% endfor %}

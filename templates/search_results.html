@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _('Search Results for "%(query)s"', query=query) }}{% endblock %}
+
+{% block styles %}
+<style>
+    #searchContainer, #searchCollapse, .search-filters {
+        display: none !important;
+    }
+    
+    /* Hide any search form in the body */
+    form[action="{{ url_for('search') }}"] {
+        display: none !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4 px-3">
+    <h2 class="mb-4">{{ _('Search Results for "%(query)s"', query=query) }}</h2>
+    
+    <!-- Add location filter button -->
+    <div class="mb-4">
+        <button type="button" class="location-btn btn btn-outline-primary position-relative" onclick="toggleLocationFilter()">
+            <i class="fas fa-location-dot"></i>
+            <span class="ms-1">{{ _('Near Me') }}</span>
+            <div class="location-tooltip">{{ _('Filter by location') }}</div>
+            <div id="location-spinner" class="spinner-border spinner-border-sm d-none" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </button>
+    </div>
+    
+    {% if users or inactive_users %}
+        {% if users %}
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for user in users %}
+                <div class="col">
+                    <div class="card h-100 mx-2 mx-md-0">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <img src="{{ url_for('static', filename='uploads/' + user.photo) if user.photo else url_for('static', filename='img/default-avatar.png') }}" 
+                                     class="rounded-circle me-3" style="width: 64px; height: 64px; object-fit: cover;">
+                                <div>
+                                    <h5 class="card-title mb-1">
+                                        <a href="{{ url_for('profile', user_id=user.id) }}" class="text-decoration-none">
+                                            {{ user.full_name }}
+                                        </a>
+                                    </h5>
+                                    <p class="text-muted mb-0 d-flex align-items-center justify-content-between">
+                                        <span>@{{ user.username }}</span>
+                                        <span class="online-status ms-2" data-user-id="{{ user.id }}">
+                                            <i class="fas fa-circle" style="font-size: 0.7rem; filter: drop-shadow(0 0 2px var(--status-color));"></i>
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            {% if user.work %}
+                                <p class="mb-2"><i class="fas fa-briefcase me-2"></i>{{ user.work }}</p>
+                            {% endif %}
+                            
+                            {% if user.current_location %}
+                                <p class="mb-2"><i class="fas fa-map-marker-alt me-2"></i>{{ user.current_location }}</p>
+                            {% endif %}
+                            
+                            {% if user.skills %}
+                                <p class="mb-2">
+                                    <i class="fas fa-tools me-2"></i>
+                                    {% for skill in user.skills.split(',')[:3] %}
+                                        <span class="badge bg-primary me-1">{{ skill.strip() }}</span>
+                                    {% endfor %}
+                                    {% if user.skills.split(',')|length > 3 %}
+                                        <span class="badge bg-secondary">+{{ user.skills.split(',')|length - 3 }}</span>
+                                    {% endif %}
+                                </p>
+                            {% endif %}
+                            
+                            {% if user.payment_charge %}
+                                <div class="mb-2">
+                                    <i class="fas fa-rupee-sign me-2"></i>
+                                    {% if user.payment_type == 'hours' %}
+                                        {{ _('Rate: ₹%(rate)s / hour', rate=user.payment_charge|int) }}
+                                    {% elif user.payment_type == 'daily' %}
+                                        {{ _('Rate: ₹%(rate)s / day', rate=user.payment_charge|int) }}
+                                    {% elif user.payment_type == 'month' %}
+                                        {{ _('Rate: ₹%(rate)s / month', rate=user.payment_charge|int) }}
+                                    {% else %}
+                                        {{ _('Rate: ₹%(rate)s', rate=user.payment_charge|int) }}
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                            
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <div>
+                                    {% if user.average_rating > 0 %}
+                                        <span class="text-warning">
+                                            <i class="fas fa-star"></i>
+                                        </span>
+                                        {{ "%.1f"|format(user.average_rating) }}
+                                        <small class="text-muted">({{ user.total_reviews }})</small>
+                                    {% endif %}
+                                </div>
+                                <a href="{{ url_for('profile', user_id=user.id) }}" class="btn btn-primary btn-sm">
+                                    {{ _('View Profile') }}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if inactive_users %}
+        <div class="mt-4">
+            <h3 class="text-muted mb-3">{{ _('Inactive Users') }}</h3>
+            <div class="alert alert-warning">
+                {{ _('The following users match your search but are currently inactive:') }}
+                <ul class="mb-0 mt-2">
+                    {% for user in inactive_users %}
+                    <li>{{ user.full_name }} {% if user.skills %}({{ user.skills }}){% endif %}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+    {% else %}
+        <div class="alert alert-info">
+            {{ _('No users found matching your search criteria.') }}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+let isLocationFilterActive = false;
+
+async function toggleLocationFilter() {
+    const button = document.querySelector('.location-btn');
+    const icon = button.querySelector('i');
+    const text = button.querySelector('span');
+    const spinner = document.getElementById('location-spinner');
+    const resultsContainer = document.querySelector('.row');
+
+    if (!isLocationFilterActive) {
+        if (navigator.geolocation) {
+            try {
+                // Show loading state
+                icon.style.display = 'none';
+                spinner.classList.remove('d-none');
+                button.disabled = true;
+
+                // Get user's location
+                const position = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(
+                        resolve,
+                        reject,
+                        {
+                            enableHighAccuracy: true,
+                            timeout: 10000,
+                            maximumAge: 0
+                        }
+                    );
+                });
+
+                // Call backend API with search query
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                const query = new URLSearchParams(window.location.search).get('q') || '';
+                const url = `/filter-by-location?lat=${encodeURIComponent(lat)}&lng=${encodeURIComponent(lng)}&q=${encodeURIComponent(query)}`;
+                
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.success) {
+                    resultsContainer.innerHTML = data.html;
+                    if (data.html.trim() === '') {
+                        showToast("{{ _('No users found in this area') }}");
+                    }
+                    isLocationFilterActive = true;
+                    text.textContent = "{{ _('Show All') }}";
+                } else {
+                    throw new Error(data.error || "{{ _('Failed to filter users by location') }}");
+                }
+            } catch (error) {
+                console.error('Location error:', error);
+                showToast(error.message || "{{ _('Could not get your location. Please try again.') }}");
+            } finally {
+                // Reset UI
+                spinner.classList.add('d-none');
+                icon.style.display = 'inline-block';
+                button.disabled = false;
+            }
+        } else {
+            showToast("{{ _('Geolocation is not supported by your browser.') }}");
+        }
+    } else {
+        // Reset to show all users
+        window.location.reload();
+    }
+}
+
+// Show toast notification
+function showToast(message, duration = 3000) {
+    const toast = document.createElement('div');
+    toast.className = 'toast align-items-center text-white bg-primary border-0';
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', 'assertive');
+    toast.setAttribute('aria-atomic', 'true');
+    
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">
+                ${message}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    `;
+    
+    const toastContainer = document.querySelector('.toast-container') || (() => {
+        const container = document.createElement('div');
+        container.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+        document.body.appendChild(container);
+        return container;
+    })();
+    
+    toastContainer.appendChild(toast);
+    const bsToast = new bootstrap.Toast(toast, { delay: duration });
+    bsToast.show();
+    
+    toast.addEventListener('hidden.bs.toast', () => {
+        toast.remove();
+    });
+}
+</script>
+{% endblock %}

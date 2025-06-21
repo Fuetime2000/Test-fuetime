@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">Help Request Status</h1>
+    
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Ticket Details</h5>
+                    <p><strong>Ticket ID:</strong> {{ help_request.ticket_id }}</p>
+                    <p><strong>Subject:</strong> {{ help_request.subject }}</p>
+                    <p><strong>Status:</strong> 
+                        <span class="badge {% if help_request.status == 'pending' %}bg-warning
+                                         {% elif help_request.status == 'in_progress' %}bg-info
+                                         {% else %}bg-success{% endif %}">
+                            {{ help_request.status|title }}
+                        </span>
+                    </p>
+                    <p><strong>Submitted:</strong> {{ help_request.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>Description</h5>
+                    <p>{{ help_request.description }}</p>
+                    
+                    {% if help_request.solution %}
+                    <h5 class="mt-4">Solution</h5>
+                    <p>{{ help_request.solution }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a href="{{ url_for('help') }}" class="btn btn-secondary">Back to Help Center</a>
+    </div>
+</div>
+{% endblock %}

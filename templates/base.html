@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="{{ g.get('lang_code', 'en') }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    {% block meta_tags %}
+    <meta name="description" content="{% block meta_description %}FueTime - Connect with skilled professionals and service providers{% endblock %}">
+    <meta name="keywords" content="{% block meta_keywords %}fuetime, services, professionals, skills, connect{% endblock %}">
+    <meta name="author" content="FueTime">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="{% block og_title %}{{ self.title() }} - FueTime{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{{ self.meta_description() }}{% endblock %}">
+    <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+    <meta property="og:url" content="{{ request.url }}">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="{{ self.og_title() }}">
+    <meta name="twitter:description" content="{{ self.og_description() }}">
+    {% endblock %}
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    {% block styles %}{% endblock %}
+    {% block head %}{% endblock %}
+</head>
+<body>
+    {% if not current_user.is_authenticated %}
+    <!-- Registration Popup -->
+    <div id="registration-popup" class="position-fixed top-0 start-50 translate-middle-x bg-white shadow-lg rounded p-3 mt-3" style="z-index: 1050; display: none;">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5 class="m-0">{{ _('Welcome to FueTime!') }}</h5>
+            <button type="button" class="btn-close" onclick="closeRegistrationPopup()"></button>
+        </div>
+        <p class="mb-2">{{ _('Please register first to access all features.') }}</p>
+        <a href="{{ url_for('register') }}" class="btn btn-primary">{{ _('Register Now') }}</a>
+    </div>
+    {% endif %}
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white">
+        <div class="container">
+            <a class="navbar-brand site-title" href="{{ url_for('main.index') }}">
+                FueTime
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.index') }}">
+                            <i class="fas fa-home"></i> {{ _('Home') }}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('help') }}">
+                            <i class="fas fa-question-circle"></i> {{ _('Help') }}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('donate') }}">
+                            <i class="fas fa-heart text-danger"></i> {{ _('Donate') }}
+                        </a>
+                    </li>
+                    {% if current_user.is_authenticated %}
+                    {% if current_user.user_type == 'client' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('premium_dashboard') }}">
+                            <i class="fas fa-chart-line"></i> {{ _('Dashboard') }}
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('messages') }}">
+                            <i class="fas fa-envelope"></i> {{ _('Messages') }}
+                            <span id="message-badge" class="badge bg-danger" {% if not current_user.get_unread_messages_count() %}style="display: none;"{% endif %}>
+                                {{ current_user.get_unread_messages_count() }}
+                            </span>
+
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('wallet') }}">
+                            <i class="fas fa-wallet"></i> {{ _('Wallet') }}
+                            <span class="badge bg-success">₹{{ current_user.wallet_balance|default(0, true) }}</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+                
+                <ul class="navbar-nav ms-auto">
+                    {% if current_user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            {% if current_user.is_admin %}
+                            <i class="fas fa-user-shield me-1"></i>
+                            {% elif current_user.user_type == 'client' %}
+                            <i class="fas fa-user-tie me-1"></i>
+                            {% else %}
+                            <img src="{{ url_for('static', filename='uploads/' + current_user.photo) if current_user.photo else url_for('static', filename='img/default-avatar.png') }}" 
+                            class="rounded-circle me-1" style="width: 24px; height: 24px; object-fit: cover;">
+                            {% endif %}
+                            {{ current_user.full_name if current_user.is_authenticated else 'Guest' }}
+                            <span class="visually-hidden">(current)</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('profile', user_id=current_user.id) }}">
+                                    <i class="fas fa-user"></i> {{ _('Profile') }}
+                                    <div class="rating">
+                                {% if current_user.is_authenticated %}
+                                    {% set display_rating = (current_user.average_rating|default(0)|float) %}
+                                    {% set decimal_part = (display_rating % 1)|float %}
+                                    {% set full_stars = display_rating|int %}
+                                    {% set half_star = 0 %}
+                                    {% if decimal_part >= 0.3 and decimal_part <= 0.7 %}
+                                        {% set half_star = 1 %}
+                                    {% elif decimal_part > 0.7 %}
+                                        {% set full_stars = full_stars + 1 %}
+                                    {% endif %}
+                                    {% set empty_stars = 5 - full_stars - half_star %}
+                                    {% for i in range(full_stars) %}
+                                    <i class="fas fa-star" style="color: #FFD700; font-size: 0.8rem;"></i>
+                                    {% endfor %}
+                                    {% if half_star %}
+                                    <i class="fas fa-star-half-alt" style="color: #FFD700; font-size: 0.8rem;"></i>
+                                    {% endif %}
+                                    {% for i in range(empty_stars) %}
+                                    <i class="far fa-star" style="color: #FFD700; font-size: 0.8rem;"></i>
+                                    {% endfor %}
+                                    <span class="text-muted small ms-1" style="font-size: 0.75rem;">({{ current_user.total_reviews|default(0) }})</span>
+                                {% endif %}
+                            </div>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('account') }}">
+                                    <i class="fas fa-cog"></i> {{ _('Account Settings') }}
+                                </a>
+                            </li>
+                            {% if current_user.is_admin %}
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('admin_dashboard') }}">
+                                    <i class="fas fa-tachometer-alt"></i> {{ _('Admin Dashboard') }}
+                                </a>
+                            </li>
+                            {% endif %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="#" onclick="handleLogout(event)">
+                                    <i class="fas fa-sign-out-alt"></i> {{ _('Logout') }}
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('login') }}">
+                            <i class="fas fa-sign-in-alt"></i> {{ _('Login') }}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('register') }}">
+                            <i class="fas fa-user-plus"></i> {{ _('Register') }}
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    <div class="container mt-3">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Toast Container for Notifications -->
+    <div id="toast-container" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1070;">
+    </div>
+
+    <!-- Main Content -->
+    {% block content %}{% endblock %}
+
+    <!-- Footer -->
+    {% if request.endpoint in ['main.index', 'account'] %}
+    <footer class="footer mt-5 py-4 bg-light">
+        <div class="container">
+            <div class="row gy-4">
+                <div class="col-12 col-md-4 mb-3">
+                    <h5 class="text-primary mb-3">FueTime</h5>
+                    <p class="text-muted small mb-0">{{ _("Connecting skilled professionals with those who need their services.") }}</p>
+                </div>
+                <div class="col-6 col-md-4 mb-3">
+                    <h5 class="text-primary mb-3">{{ _("Quick Links") }}</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="{{ url_for('about') }}" class="text-muted text-decoration-none">{{ _("About Us") }}</a></li>
+                        <li class="mb-2"><a href="{{ url_for('help') }}" class="text-muted text-decoration-none">{{ _("Help Center") }}</a></li>
+                        {% if current_user.is_authenticated %}
+                        <li class="mb-2"><a href="{{ url_for('messages') }}" class="text-muted text-decoration-none">{{ _("Messages") }}</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <h5 class="text-primary mb-3">{{ _("Secure Payments") }}</h5>
+                    <div class="payment-methods mb-2">
+                        <i class="fab fa-cc-visa fa-2x me-2" title="Visa"></i>
+                        <i class="fab fa-cc-mastercard fa-2x me-2" title="Mastercard"></i>
+                        <i class="fas fa-money-bill-wave fa-2x me-2" title="UPI"></i>
+                        <i class="fas fa-university fa-2x me-2" title="Net Banking"></i>
+                    </div>
+                    <div class="security-badge d-flex align-items-center text-muted small">
+                        <i class="fas fa-shield-alt text-success me-2"></i>
+                        <span>{{ _("Your payments are 100% secure with bank-grade encryption") }}</span>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 mb-3">
+                    <h5 class="text-primary mb-3">{{ _("Legal") }}</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="{{ url_for('privacy') }}" class="text-muted text-decoration-none">{{ _("Privacy Policy") }}</a></li>
+                        <li class="mb-2"><a href="{{ url_for('terms') }}" class="text-muted text-decoration-none">{{ _("Terms & Conditions") }}</a></li>
+                        <li class="mb-2"><a href="{{ url_for('sitemap') }}" class="text-muted text-decoration-none">{{ _("Sitemap") }}</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-4">
+            <!-- Social Media Icons -->
+            <div class="row mb-4">
+                <div class="col-12 text-center">
+                    <a href="https://facebook.com" class="text-muted text-decoration-none me-3" target="_blank" rel="noopener noreferrer">
+                        <i class="fab fa-facebook fa-2x"></i>
+                    </a>
+                    <a href="https://www.instagram.com/mr.dipend_ra/" class="text-muted text-decoration-none me-3" target="_blank" rel="noopener noreferrer">
+                        <i class="fab fa-instagram fa-2x"></i>
+                    <a href="https://linkedin.com" class="text-muted text-decoration-none" target="_blank" rel="noopener noreferrer">
+                        <i class="fab fa-linkedin fa-2x"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 text-center">
+                    <p class="text-muted mb-0"> 2024 FueTime. {{ _("All rights reserved.") }}</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    {% endif %}
+
+    <!-- Notification Settings Modal -->
+    <div class="modal fade" id="notificationSettingsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Notification Settings</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="desktopNotifications" 
+                               onchange="toggleNotificationPreference('desktop')" checked>
+                        <label class="form-check-label" for="desktopNotifications">
+                            Desktop Notifications
+                        </label>
+                        <small class="form-text text-muted d-block">
+                            Receive notifications even when the browser is in background
+                        </small>
+                    </div>
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="soundNotifications"
+                               onchange="toggleNotificationPreference('sound')" checked>
+                        <label class="form-check-label" for="soundNotifications">
+                            Sound Notifications
+                        </label>
+                        <small class="form-text text-muted d-block">
+                            Play a sound when new messages arrive
+                        </small>
+                    </div>
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="inAppNotifications"
+                               onchange="toggleNotificationPreference('inApp')" checked>
+                        <label class="form-check-label" for="inAppNotifications">
+                            In-App Notifications
+                        </label>
+                        <small class="form-text text-muted d-block">
+                            Show toast notifications within the app
+                        </small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container for Notifications -->
+    <div id="toast-container" class="position-fixed bottom-0 end-0 p-3"></div>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Socket.IO -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    
+    <!-- CSRF Token Setup -->
+    <script>
+        // Handle profile image loading errors
+        document.addEventListener('DOMContentLoaded', function() {
+            const profileImg = document.getElementById('profileImage');
+            if (profileImg) {
+                profileImg.onerror = function() {
+                    this.onerror = null;
+                    if (this.dataset.fallbackSrc) {
+                        this.src = this.dataset.fallbackSrc;
+                    } else {
+                        this.src = "{{ url_for('static', filename='img/default-avatar.png') }}";
+                    }
+                };
+            }
+        });
+    </script>
+    <script>
+        // CSRF Protection for AJAX requests
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token() }}");
+                }
+            }
+        });
+    </script>
+    
+    {% if current_user.is_authenticated %}
+    <script>
+        var USER_ID = parseInt("{{ current_user.id }}");
+        var SOCKET_URL = '{{ config["SOCKET_SERVER_URL"] or request.url_root.strip("/") }}';
+        var socket = null;
+        var reconnectAttempts = 0;
+        const MAX_RECONNECT_ATTEMPTS = 10;
+        const RECONNECT_DELAY = 3000; // 3 seconds
+        
+        function initSocket() {
+            if (!USER_ID) {
+                console.log('User not authenticated, skipping socket initialization');
+                return;
+            }
+
+            socket = io({
+                transports: ['websocket'],
+                upgrade: false,
+                reconnection: true,
+                reconnectionDelay: RECONNECT_DELAY,
+                reconnectionDelayMax: 5000,
+                reconnectionAttempts: MAX_RECONNECT_ATTEMPTS,
+                timeout: 20000,
+                forceNew: true,
+                autoConnect: true
+            });
+
+            // Connection established
+            socket.on('connect', function() {
+                console.log('Successfully connected to WebSocket server');
+                reconnectAttempts = 0;
+                socket.emit('user_online', {user_id: USER_ID});
+                socket.emit('join', {room: 'user_' + USER_ID});
+            });
+
+            // Connection error
+            socket.on('connect_error', function(error) {
+                console.error('WebSocket connection error:', error);
+                reconnectAttempts++;
+            });
+
+            // Disconnection
+            socket.on('disconnect', function(reason) {
+                console.log('Disconnected from WebSocket:', reason);
+                socket.emit('user_offline', {user_id: USER_ID});
+            });
+
+            // Handle reconnection attempts
+            socket.on('reconnect_attempt', function(attemptNumber) {
+                console.log('Reconnection attempt:', attemptNumber);
+            });
+
+            // Handle successful reconnection
+            socket.on('reconnect', function(attemptNumber) {
+                console.log('Successfully reconnected after', attemptNumber, 'attempts');
+                socket.emit('user_online', {user_id: USER_ID});
+            });
+
+            // Handle failed reconnection
+            socket.on('reconnect_failed', function() {
+                console.error('Failed to reconnect after', MAX_RECONNECT_ATTEMPTS, 'attempts');
+            });
+        }
+        
+        // Initialize socket when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initSocket();
+            
+            // Handle page visibility changes
+            document.addEventListener('visibilitychange', function() {
+                if (document.visibilityState === 'visible' && socket) {
+                    // Page is now visible, reconnect if needed
+                    if (!socket.connected) {
+                        console.log('Page became visible, reconnecting WebSocket...');
+                        socket.connect();
+                    } else {
+                        // If already connected, just update online status
+                        socket.emit('user_online', {user_id: USER_ID});
+                    }
+                }
+            });
+        });
+        
+        // Handle beforeunload to properly clean up
+        window.addEventListener('beforeunload', function() {
+            if (socket && socket.connected) {
+                socket.emit('user_offline', {user_id: USER_ID});
+                // Give some time for the message to be sent
+                const start = Date.now();
+                while (Date.now() - start < 100) { /* Wait for 100ms */ }
+            }
+        });
+
+        // Handle incoming messages
+        function setupSocketListeners() {
+            if (!socket) return;
+            
+            socket.on('message', function(data) {
+                console.log('New message:', data);
+                // Handle new message notification
+                updateUnreadCount();
+            });
+            
+            // Handle user status changes
+            socket.on('user_status_changed', function(data) {
+                console.log('User status changed:', data);
+                const userId = data.user_id;
+                const isOnline = data.is_online;
+            
+                // Update all elements with data-user-id attribute
+                const elements = document.querySelectorAll(`[data-user-id="${userId}"]`);
+                elements.forEach(element => {
+                    const statusElement = element.querySelector('.user-status');
+                    if (statusElement) {
+                        if (isOnline) {
+                            statusElement.classList.remove('offline');
+                            statusElement.classList.add('online');
+                            statusElement.title = 'Online';
+                        } else {
+                            statusElement.classList.remove('online');
+                            statusElement.classList.add('offline');
+                            statusElement.title = 'Offline';
+                        }
+                    }
+                });
+            });
+
+            // Handle profile updates
+            socket.on('profile_updated', function(data) {
+                console.log('Profile updated:', data);
+                if (data.success) {
+                    // Update the user's profile picture in the navbar if it exists
+                    const profileImages = document.querySelectorAll(`img[alt="${data.username}'s profile picture"]`);
+                    if (profileImages.length > 0 && data.photo) {
+                        profileImages.forEach(img => {
+                            img.src = `/static/uploads/profile_pics/${data.photo}`;
+                            // Add a cache-busting parameter to force refresh
+                            img.src += (img.src.includes('?') ? '&' : '?') + 't=' + new Date().getTime();
+                        });
+                    }
+                    
+                    // Update the user's name in the navbar if it exists
+                    const nameElements = document.querySelectorAll('.user-fullname');
+                    if (nameElements.length > 0 && data.full_name) {
+                        nameElements.forEach(el => {
+                            el.textContent = data.full_name;
+                        });
+                    }
+                    
+                    // Show a success message
+                    showToast('Success', data.message || 'Profile updated successfully', 'success');
+                    
+                    // If we're on the profile page, refresh it to show all changes
+                    if (window.location.pathname.includes('/profile/')) {
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    }
+                } else {
+                    showToast('Error', data.message || 'Failed to update profile', 'error');
+                }
+            });
+        }
+
+        // Call setupSocketListeners after socket is initialized
+        if (socket) {
+            setupSocketListeners();
+        }
+
+        // Update unread message count
+        function updateUnreadCount() {
+            fetch('{{ url_for("get_unread_count") }}')
+                .then(response => response.json())
+                .then(data => {
+                    const badge = document.getElementById('message-badge');
+                    if (badge) {
+                        if (data.count > 0) {
+                            badge.style.display = 'inline-block';
+                            badge.textContent = data.count;
+                        } else {
+                            badge.style.display = 'none';
+                        }
+                    }
+                });
+        }
+
+        
+        function handleLogout(event) {
+            event.preventDefault();
+            const logoutButton = event.target.closest('a');
+            
+            // Show loading state
+            const originalHtml = logoutButton.innerHTML;
+            logoutButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> {{ _("Logging out...") }}';
+            logoutButton.classList.add('disabled');
+            
+            // Timeout in case something goes wrong
+            const logoutTimeout = setTimeout(() => {
+                console.log('Logout timeout reached, forcing redirect');
+                window.location.href = "{{ url_for('logout') }}";
+            }, 3000);
+            
+            // Function to complete logout
+            const completeLogout = () => {
+                clearTimeout(logoutTimeout);
+                window.location.href = "{{ url_for('logout') }}";
+            };
+            
+            // If socket is connected, disconnect it first
+            if (socket && socket.connected) {
+                try {
+                    // Set up a one-time listener for the logout acknowledgement
+                    const ackTimeout = setTimeout(() => {
+                        console.log('Logout ack timeout, proceeding with logout');
+                        completeLogout();
+                    }, 1000);
+                    
+                    socket.once('logout_acknowledged', (data) => {
+                        clearTimeout(ackTimeout);
+                        console.log('Logout acknowledged by server:', data);
+                        socket.disconnect();
+                        completeLogout();
+                    });
+                    
+                    // Notify server about logout
+                    socket.emit('user_logout');
+                } catch (e) {
+                    console.error('Error during socket logout:', e);
+                    completeLogout();
+                }
+            } else {
+                // If no socket connection, just redirect
+                completeLogout();
+            }
+        }
+    </script>
+    {% else %}
+    <script>
+        function handleLogout(event) {
+            event.preventDefault();
+            window.location.href = "{{ url_for('logout') }}";
+        }
+        
+        function showRegistrationPopup() {
+            document.getElementById('registration-popup').style.display = 'block';
+        }
+        
+        function closeRegistrationPopup() {
+            document.getElementById('registration-popup').style.display = 'none';
+            // Set cookie to remember user closed the popup
+            document.cookie = 'popup_closed=true; path=/; max-age=86400'; // 24 hours
+        }
+        
+        // Show popup if not closed before
+        window.addEventListener('load', function() {
+            if (!document.cookie.includes('popup_closed=true')) {
+                setTimeout(showRegistrationPopup, 1000); // Show after 1 second
+            }
+        });
+    </script>
+    {% endif %}
+    
+    <!-- Custom Scripts -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    <!-- Page-specific Scripts -->
+    {% block scripts %}{% endblock %}
+</body>
+</html>

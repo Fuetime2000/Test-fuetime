@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Write a Review for {{ worker.full_name }}</h4>
+                </div>
+                <div class="card-body">
+                    <div id="alert-container">
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                                {% for category, message in messages %}
+                                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                        {{ message }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+
+                    {% if existing_review %}
+                        <div class="alert alert-warning">
+                            You have already reviewed this user. You can view your review on their profile.
+                        </div>
+                    {% else %}
+                        <form id="review-form" method="POST" action="{{ url_for('review', worker_id=worker.id) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <div class="mb-4">
+                                <label class="form-label">Rating</label>
+                                <div class="rating-input">
+                                    {% for i in range(5, 0, -1) %}
+                                    <input type="radio" id="star{{ i }}" name="rating" value="{{ i }}" required>
+                                    <label for="star{{ i }}" title="{{ i }} stars">★</label>
+                                    {% endfor %}
+                                </div>
+                                <div class="invalid-feedback" id="rating-feedback">
+                                    Please select a rating.
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label for="comment" class="form-label">Comment</label>
+                                <textarea class="form-control" id="comment" name="comment" rows="4" required 
+                                          placeholder="Share your experience working with {{ worker.full_name }}..."></textarea>
+                                <div class="invalid-feedback" id="comment-feedback">
+                                    Please provide a review comment.
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="{{ url_for('profile', user_id=worker.id) }}" class="btn btn-outline-secondary">Cancel</a>
+                                <button type="submit" class="btn btn-primary" id="submit-btn">
+                                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                    Submit Review
+                                </button>
+                            </div>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('review-form');
+    const alertContainer = document.getElementById('alert-container');
+    const submitBtn = document.getElementById('submit-btn');
+    
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Reset validation
+            form.classList.remove('was-validated');
+            document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+            
+            // Validate form
+            if (!form.checkValidity()) {
+                e.stopPropagation();
+                form.classList.add('was-validated');
+                return;
+            }
+            
+            // Show loading state
+            const spinner = submitBtn.querySelector('.spinner-border');
+            spinner.classList.remove('d-none');
+            submitBtn.disabled = true;
+            
+            // Prepare form data
+            const formData = {
+                rating: parseInt(form.querySelector('input[name="rating"]:checked').value),
+                comment: form.querySelector('#comment').value.trim(),
+                csrf_token: form.querySelector('input[name="csrf_token"]').value
+            };
+            
+            // Submit via AJAX
+            fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => Promise.reject(err));
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Show success message
+                    showAlert('Review submitted successfully!', 'success');
+                    
+                    // Refresh the parent window's reviews section
+                    if (window.opener && !window.opener.closed) {
+                        // If opened in a popup, refresh the parent
+                        window.opener.location.reload();
+                        setTimeout(() => {
+                            window.close();
+                        }, 1000);
+                    } else {
+                        // If not in a popup, redirect to profile
+                        setTimeout(() => {
+                            window.location.href = "{{ url_for('profile', user_id=worker.id) }}";
+                        }, 1500);
+                    }
+                } else {
+                    throw new Error(data.error || 'Failed to submit review');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                const errorMessage = error.message || 'An error occurred while submitting your review. Please try again.';
+                showAlert(errorMessage, 'danger');
+            })
+            .finally(() => {
+                // Reset loading state
+                spinner.classList.add('d-none');
+                submitBtn.disabled = false;
+            });
+        });
+    }
+    
+    function showAlert(message, type) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+        alertDiv.role = 'alert';
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        
+        // Clear existing alerts and add new one
+        alertContainer.innerHTML = '';
+        alertContainer.appendChild(alertDiv);
+        
+        // Auto-dismiss after 5 seconds
+        setTimeout(() => {
+            const bsAlert = new bootstrap.Alert(alertDiv);
+            bsAlert.close();
+        }, 5000);
+    }
+});
+</script>
+
+<style>
+.rating-input {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    margin: 10px 0;
+}
+
+.rating-input input {
+    display: none;
+}
+
+.rating-input label {
+    font-size: 35px;
+    color: #ddd;
+    cursor: pointer;
+    padding: 0 3px;
+    transition: color 0.2s ease;
+}
+
+.rating-input label:hover,
+.rating-input label:hover ~ label,
+.rating-input input:checked ~ label {
+    color: #ffd700;
+}
+
+.card {
+    border: none;
+    border-radius: 10px;
+}
+
+.card-header {
+    border-radius: 10px 10px 0 0 !important;
+}
+
+textarea.form-control {
+    resize: vertical;
+    min-height: 120px;
+}
+
+textarea.form-control:focus {
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    border-color: #86b7fe;
+}
+</style>
+{% endblock %}

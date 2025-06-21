@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">Track Help Request</h1>
+    
+    <div class="card">
+        <div class="card-body">
+            <form action="{{ url_for('track_help_request') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="mb-3">
+                    <label for="ticket_id" class="form-label">Enter your Ticket ID</label>
+                    <input type="text" class="form-control" id="ticket_id" name="ticket_id" required>
+                    <div class="form-text">
+                        Enter the ticket ID you received when submitting your help request.
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Track Request</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a href="{{ url_for('help') }}" class="btn btn-secondary">Back to Help Center</a>
+    </div>
+</div>
+{% endblock %}

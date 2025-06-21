@@ -1,0 +1,665 @@
+{% extends "base.html" %}
+
+{% block head %}
+<style>
+:root {
+    --primary-color: #4f46e5;
+    --primary-dark: #4338ca;
+    --primary-light: #818cf8;
+    --primary-lighter: #e0e7ff;
+    --success-color: #10b981;
+    --danger-color: #ef4444;
+    --warning-color: #f59e0b;
+    --surface-color: rgba(255, 255, 255, 0.9);
+    --background-color: #f0f4ff;
+    --text-primary: #1e1b4b;
+    --text-secondary: #4b5563;
+    --text-light: #6b7280;
+    --border-color: rgba(226, 232, 240, 0.7);
+    --input-bg: rgba(255, 255, 255, 0.8);
+    --input-border: rgba(203, 213, 225, 0.7);
+    --input-focus: #818cf8;
+    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    --card-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --border-radius: 16px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body {
+    background: linear-gradient(135deg, #f0f4ff 0%, #e6f0ff 100%);
+    min-height: 100vh;
+}
+
+.account-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.profile-card {
+    background: var(--surface-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+    transition: var(--transition);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+.profile-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--card-hover);
+    border-color: rgba(79, 70, 229, 0.3);
+}
+
+.profile-header {
+    padding: 2.5rem 2rem;
+    text-align: center;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(79, 70, 229, 0.1) 100%);
+    border-bottom: 1px solid var(--border-color);
+    position: relative;
+    overflow: hidden;
+}
+
+.profile-header::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.2), transparent 60%);
+    pointer-events: none;
+}
+
+.profile-avatar {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    margin: 0 auto 1.5rem;
+    z-index: 1;
+}
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 4px solid var(--surface-color);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    transition: var(--transition);
+}
+
+.profile-avatar:hover img {
+    transform: scale(1.03);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.avatar-upload {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: var(--primary-color);
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.avatar-upload:hover {
+    transform: scale(1.1);
+    background: var(--primary-dark);
+}
+
+.nav-pills {
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
+    padding: 0.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--border-color);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.nav-pills .nav-link {
+    color: var(--text-secondary);
+    border-radius: 8px;
+    padding: 0.75rem 1.25rem;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 500;
+    margin: 0.25rem;
+    border: 1px solid transparent;
+}
+
+.nav-pills .nav-link:hover {
+    color: var(--primary-color);
+    background: rgba(255, 255, 255, 0.8);
+    border-color: var(--border-color);
+}
+
+.nav-pills .nav-link.active {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-dark);
+    box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
+}
+
+.nav-pills .nav-link i {
+    font-size: 1.1em;
+}
+
+.form-control {
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    transition: var(--transition);
+    font-size: 0.95rem;
+    height: auto;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    background: white;
+}
+
+.input-group-text {
+    background: var(--primary-lighter);
+    border: 1px solid var(--input-border);
+    color: var(--primary-color);
+    border-radius: 10px 0 0 10px;
+}
+
+.form-control:focus + .input-group-text {
+    border-color: var(--primary-color);
+    background: var(--primary-lighter);
+}
+
+.form-label {
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 500;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    opacity: 0;
+    transition: var(--transition);
+    z-index: -1;
+}
+
+.btn:hover::before {
+    opacity: 1;
+}
+
+.btn i {
+    font-size: 1.1em;
+    transition: var(--transition);
+}
+
+.btn:hover i {
+    transform: translateX(3px);
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: white;
+    box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
+}
+
+.btn-outline-primary {
+    background: transparent;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.btn-danger {
+    background: var(--danger-color);
+    color: white;
+    box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.2);
+}
+
+.btn-danger:hover {
+    background: #dc2626;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.3);
+}
+
+.form-switch .form-check-input {
+    width: 2.5em;
+    height: 1.25em;
+    margin-top: 0.25em;
+}
+
+.form-switch .form-check-input:checked {
+    background-color: var(--success-color);
+    border-color: var(--success-color);
+}
+
+/* Responsive Styles */
+@media (max-width: 1199.98px) {
+    .account-container {
+        max-width: 100%;
+        padding: 0 1.25rem;
+    }
+    
+    .profile-avatar {
+        width: 130px;
+        height: 130px;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .profile-header {
+        padding: 2rem 1.5rem;
+    }
+    
+    .nav-pills {
+        flex-direction: row !important;
+        overflow-x: auto;
+        padding: 0.5rem;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .nav-pills .nav-link {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .tab-content {
+        padding: 0;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .account-container {
+        margin: 0.5rem auto;
+        padding: 0 1rem;
+    }
+    
+    .profile-card {
+        border-radius: 12px;
+        margin-bottom: 1rem;
+    }
+    
+    .profile-header {
+        padding: 1.75rem 1.25rem;
+    }
+    
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .nav-pills {
+        margin-left: -0.5rem;
+        margin-right: -0.5rem;
+        border-radius: 0;
+        padding: 0.5rem;
+    }
+    
+    .nav-pills .nav-link {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
+    }
+    
+    .btn {
+        padding: 0.625rem 1.25rem;
+        font-size: 0.9rem;
+    }
+    
+    .form-control, .input-group-text {
+        padding: 0.625rem 0.875rem;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .account-container {
+        padding: 0 0.75rem;
+    }
+    
+    .profile-header {
+        padding: 1.5rem 1rem;
+    }
+    
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+        margin-bottom: 1rem;
+    }
+    
+    .nav-pills {
+        margin-left: -0.75rem;
+        margin-right: -0.75rem;
+        padding: 0.5rem 0.25rem;
+    }
+    
+    .nav-pills .nav-link {
+        padding: 0.5rem;
+        font-size: 0.8rem;
+    }
+    
+    .nav-pills .nav-link i {
+        margin-right: 0.25rem;
+    }
+    
+    .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+    
+    .btn-group {
+        width: 100%;
+    }
+    
+    .btn-group .btn {
+        width: 50%;
+    }
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle delete account form submission
+        const deleteAccountForm = document.getElementById('deleteAccountForm');
+        if (deleteAccountForm) {
+            deleteAccountForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                if (confirm('Are you absolutely sure you want to delete your account? This cannot be undone!')) {
+                    const formData = new FormData(this);
+                    fetch(this.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('deleteAccountModal'));
+                            modal.hide();
+                            toastr.success(data.message);
+                            setTimeout(() => window.location.href = '/', 1500);
+                        } else {
+                            toastr.error(data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        toastr.error('An error occurred while deleting your account');
+                    });
+                }
+            });
+        }
+
+        // Handle password change form submission
+        const changePasswordForm = document.getElementById('changePasswordForm');
+        if (changePasswordForm) {
+            changePasswordForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const newPassword = this.querySelector('[name="new_password"]').value;
+                const confirmPassword = this.querySelector('[name="confirm_password"]').value;
+                
+                if (newPassword !== confirmPassword) {
+                    alert('Passwords do not match!');
+                    return;
+                }
+                
+                if (newPassword.length < 8) {
+                    e.preventDefault();
+                    toastr.error('Password must be at least 8 characters long');
+                    return false;
+                }
+                
+                fetch('/account/change-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        new_password: newPassword
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Password changed successfully!');
+                        this.reset();
+                    } else {
+                        alert(data.error || 'Failed to change password');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while changing password');
+                });
+            });
+        }
+
+        // Handle notification settings form
+        const notificationForm = document.getElementById('notificationSettingsForm');
+        if (notificationForm) {
+            notificationForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                
+                fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        toastr.success('Notification settings updated successfully');
+                    } else {
+                        toastr.error(data.message || 'Error updating notification settings');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    toastr.error('An error occurred while saving settings');
+                });
+            });
+        };
+
+
+    });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="account-container animate__animated animate__fadeIn">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            <div class="profile-card shadow-sm">
+                <div class="profile-header">
+                    <div class="profile-avatar">
+                        <img src="{{ url_for('static', filename='uploads/' + current_user.photo) if current_user.photo else url_for('static', filename='img/default-avatar.png') }}" alt="Profile Photo">
+                        <label for="photo-upload" class="avatar-upload" title="Change photo">
+                            <i class="fas fa-camera"></i>
+                        </label>
+                    </div>
+                    <h5 class="mb-1">{{ current_user.full_name }}</h5>
+                    <p class="text-muted mb-3">{{ current_user.work|default('Not specified') }}</p>
+                    <div class="d-grid">
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                            <i class="fas fa-user-times"></i> Delete Account
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="profile-info">
+                <h5 class="mb-3">Account Settings</h5>
+                <p class="text-muted">Manage your account security and notifications.</p>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <!-- Tab Navigation -->
+            <nav>
+                <div class="nav nav-pills mb-4" id="accountTabs" role="tablist">
+                    <button class="nav-link active" id="security-tab" data-bs-toggle="pill" data-bs-target="#security" type="button" role="tab" aria-controls="security" aria-selected="true">
+                        <i class="fas fa-shield-alt me-2"></i> Security
+                    </button>
+                    <button class="nav-link" id="notifications-tab" data-bs-toggle="pill" data-bs-target="#notifications" type="button" role="tab" aria-controls="notifications" aria-selected="false">
+                        <i class="fas fa-bell me-2"></i> Notifications
+                    </button>
+                </div>
+            </nav>
+
+            <!-- Tab Content -->
+            <div class="tab-content">
+                <!-- Security Section -->
+                <div class="tab-pane fade show active" id="security" role="tabpanel" aria-labelledby="security-tab">
+                    <div class="profile-card">
+                        <div class="card-header bg-transparent border-bottom">
+                            <h5 class="mb-0">Change Password</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST" action="{{ url_for('auth.change_password') }}" id="changePasswordForm">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <div class="mb-3">
+                                    <label class="form-label">Current Password</label>
+                                    <input type="password" name="current_password" class="form-control" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">New Password</label>
+                                    <input type="password" name="new_password" class="form-control" required minlength="8">
+                                    <small class="text-muted">Password must be at least 8 characters long</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Confirm New Password</label>
+                                    <input type="password" name="confirm_password" class="form-control" required>
+                                </div>
+                                <div class="text-end">
+                                    <button type="submit" class="btn btn-primary" id="changePasswordBtn">
+                                        <i class="fas fa-key me-1"></i> Change Password
+                                    </button>
+                                </div>
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notifications Section -->
+                <div class="tab-pane fade" id="notifications" role="tabpanel" aria-labelledby="notifications-tab">
+                    <div class="profile-card">
+                        <div class="card-header bg-transparent border-bottom">
+                            <h5 class="mb-0">Notification Settings</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST" action="{{ url_for('profile.notifications') }}" id="notificationSettingsForm">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input notification-toggle" type="checkbox" id="emailNotifications" name="email_notifications" data-type="email" {% if settings.email_notifications %}checked{% endif %}>
+                                    <label class="form-check-label" for="emailNotifications">Email Notifications</label>
+                                </div>
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input notification-toggle" type="checkbox" id="messageNotifications" name="message_notifications" data-type="message" {% if settings.message_notifications %}checked{% endif %}>
+                                    <label class="form-check-label" for="messageNotifications">Message Notifications</label>
+                                </div>
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input notification-toggle" type="checkbox" id="reviewNotifications" name="review_notifications" data-type="review" {% if settings.review_notifications %}checked{% endif %}>
+                                    <label class="form-check-label" for="reviewNotifications">Review Notifications</label>
+                                </div>
+                                <div class="text-end">
+                                    <button type="submit" class="btn btn-primary" id="saveNotificationsBtn">
+                                        <i class="fas fa-save me-1"></i> Save Notification Settings
+                                    </button>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Account Modal -->
+<div class="modal fade" id="deleteAccountModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Account</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-danger">Are you sure you want to delete your account? This action cannot be undone.</p>
+                <form id="deleteAccountForm" method="POST" action="{{ url_for('delete_account') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-3">
+                        <label class="form-label">Please type your password to confirm:</label>
+                        <input type="password" name="password" class="form-control" required>
+                    </div>
+                    <div class="modal-footer px-0 pb-0">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Delete Account</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

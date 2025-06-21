@@ -1,0 +1,49 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <h1 class="mb-4">Help Requests</h1>
+    
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Ticket ID</th>
+                            <th>User</th>
+                            <th>Subject</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for request in help_requests %}
+                        <tr>
+                            <td>{{ request.ticket_id }}</td>
+                            <td>{{ request.user.full_name }}</td>
+                            <td>{{ request.subject }}</td>
+                            <td>
+                                <span class="badge {% if request.status == 'pending' %}bg-warning
+                                                 {% elif request.status == 'in_progress' %}bg-info
+                                                 {% else %}bg-success{% endif %}">
+                                    {{ request.status|title }}
+                                </span>
+                            </td>
+                            <td>{{ request.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                <a href="{{ url_for('admin_help_request', ticket_id=request.ticket_id) }}" 
+                                   class="btn btn-sm btn-primary">
+                                    View Details
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

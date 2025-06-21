@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}{{ project.title }} - Project Details{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('profile', user_id=project.user.id) }}">Portfolio</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ project.title }}</li>
+                </ol>
+            </nav>
+
+            <div class="card shadow-sm">
+                {% if project.image_url %}
+                <div class="project-image-wrapper">
+                    <img src="{{ url_for('static', filename='uploads/' + project.image_url) }}" 
+                         class="card-img-top" alt="{{ project.title }}">
+                </div>
+                {% endif %}
+                
+                <div class="card-body">
+                    <h1 class="h2 mb-4">{{ project.title }}</h1>
+                    
+                    <div class="mb-4">
+                        <span class="badge bg-primary px-3 py-2">{{ project.category }}</span>
+                        {% for tech in project.technologies %}
+                        <span class="badge bg-light text-dark px-3 py-2 ms-2">{{ tech.name }}</span>
+                        {% endfor %}
+                    </div>
+
+                    <div class="text-muted mb-4">
+                        <i class="fas fa-calendar-alt me-2"></i>
+                        {% if project.start_date %}
+                        {{ project.start_date.strftime('%b %Y') }}
+                        {% if project.end_date %}
+                        - {{ project.end_date.strftime('%b %Y') }}
+                        {% else %}
+                        - Present
+                        {% endif %}
+                        {% endif %}
+                    </div>
+
+                    <div class="project-description mb-4">
+                        <h5 class="mb-3">Project Description</h5>
+                        <p class="text-muted">{{ project.description }}</p>
+                    </div>
+
+                    {% if project.project_url %}
+                    <div class="project-links">
+                        <a href="{{ project.project_url }}" target="_blank" class="btn btn-primary">
+                            <i class="fas fa-external-link-alt me-2"></i>View Project
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,115 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <h2>Fraud Alerts Dashboard</h2>
+    
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <h5 class="card-title">High Risk Alerts</h5>
+                    <h2 class="card-text">{{ high_risk_count }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-warning text-dark">
+                <div class="card-body">
+                    <h5 class="card-title">Medium Risk Alerts</h5>
+                    <h2 class="card-text">{{ medium_risk_count }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Low Risk Alerts</h5>
+                    <h2 class="card-text">{{ low_risk_count }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3>Recent Fraud Alerts</h3>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>User</th>
+                            <th>Alert Type</th>
+                            <th>Severity</th>
+                            <th>Risk Score</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for alert in alerts %}
+                        <tr>
+                            <td>{{ alert.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                            <td>
+                                <a href="{{ url_for('admin_user_risk_profile', username=alert.user.username) }}">
+                                    {{ alert.user.username }}
+                                </a>
+                            </td>
+                            <td>{{ alert.alert_type }}</td>
+                            <td>
+                                <span class="badge badge-{{ 'danger' if alert.severity == 'high' else 'warning' if alert.severity == 'medium' else 'info' }}">
+                                    {{ alert.severity }}
+                                </span>
+                            </td>
+                            <td>{{ "%.2f"|format(alert.details.risk_score) }}</td>
+                            <td>
+                                <span class="badge badge-{{ 'success' if alert.is_resolved else 'secondary' }}">
+                                    {{ 'Resolved' if alert.is_resolved else 'Pending' }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if not alert.is_resolved %}
+                                <form method="POST" action="{{ url_for('admin_resolve_alert', alert_id=alert.id) }}" class="d-inline">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-sm btn-success">Resolve</button>
+                                </form>
+                                {% endif %}
+                                <button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#detailsModal{{ alert.id }}">
+                                    Details
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- Details Modal -->
+                        <div class="modal fade" id="detailsModal{{ alert.id }}" tabindex="-1" role="dialog">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Alert Details</h5>
+                                        <button type="button" class="close" data-dismiss="modal">
+                                            <span>&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <pre class="bg-light p-3">{{ alert.details|tojson(indent=2) }}</pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if not alerts %}
+            <div class="text-center py-4">
+                <p class="text-muted">No fraud alerts found.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

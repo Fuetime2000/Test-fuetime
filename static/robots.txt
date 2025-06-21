@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+Allow: /profile/*
+Allow: /help
+Allow: /search
+
+Disallow: /login
+Disallow: /register
+Disallow: /messages
+Disallow: /chat/*
+Disallow: /admin/*
+Disallow: /wallet
+Disallow: /account
+
+Sitemap: {{ url_for('sitemap', _external=True) }}

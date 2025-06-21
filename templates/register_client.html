@@ -1,0 +1,518 @@
+{% extends "base.html" %}
+
+{% block title %}Register as Client - Fuetime{% endblock %}
+
+{% block head %}
+{{ super() }}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<style>
+    .form-container {
+        max-width: 600px;
+        margin: 2rem auto;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        background-color: #fff;
+    }
+    .form-title {
+        color: #0d6efd;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+    .btn-register {
+        background-color: #0d6efd;
+        border: none;
+        padding: 10px 25px;
+        font-weight: 600;
+    }
+    .btn-register:hover {
+        background-color: #0b5ed7;
+    }
+    .form-text {
+        font-size: 0.85rem;
+    }
+    .login-link {
+        text-align: center;
+        margin-top: 1.5rem;
+    }
+    .form-label {
+        font-weight: 500;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-12">
+            <div class="form-container">
+                <h2 class="form-title">
+                    <i class="fas fa-briefcase me-2"></i>Business Registration
+                </h2>
+                
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                {% if error %}
+                    <div class="alert alert-danger">
+                        {{ error }}
+                    </div>
+                {% endif %}
+
+                <form method="POST" action="{{ url_for('register_client') }}" enctype="multipart/form-data" novalidate class="needs-validation" id="registrationForm">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="user_type" value="client">
+                    
+                    <div class="row g-3 mb-4">
+                        <!-- Full Name -->
+                        <div class="col-md-6">
+                            <label for="full_name" class="form-label">Full Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="full_name" name="full_name" 
+                                   value="{{ form_data.full_name if form_data }}" required>
+                            <div class="invalid-feedback">
+                                Please provide your full name.
+                            </div>
+                        </div>
+                        
+                        <!-- Email -->
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" id="email" name="email" 
+                                   pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+                                   value="{{ form_data.email if form_data }}" required>
+                            <div class="invalid-feedback">
+                                Please provide a valid email address (e.g., example@domain.com).
+                            </div>
+                        </div>
+                        
+                        <!-- Phone -->
+                        <div class="col-md-6">
+                            <label for="phone" class="form-label">Phone Number <span class="text-danger">*</span></label>
+                            <input type="tel" class="form-control" id="phone" name="phone" 
+                                   pattern="[6-9][0-9]{9}" maxlength="10"
+                                   value="{{ form_data.phone if form_data }}" required>
+                            <div class="invalid-feedback">
+                                Please provide a valid 10-digit Indian mobile number starting with 6-9.
+                            </div>
+                        </div>
+                        
+                        <!-- Password -->
+                        <div class="col-md-6">
+                            <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+                            <div class="password-wrapper position-relative">
+                                <input type="password" class="form-control" id="password" name="password" required>
+                                <div class="password-strength mt-2">
+                                    <div class="progress" style="height: 5px;">
+                                        <div class="progress-bar" role="progressbar" style="width: 0%;"></div>
+                                    </div>
+                                    <small class="strength-text text-muted">Password strength</small>
+                                </div>
+                                <div class="password-requirements mt-2">
+                                    <div><i class="fas fa-times-circle text-danger"></i><i class="fas fa-check-circle text-success d-none"></i> <small>At least 8 characters</small></div>
+                                    <div><i class="fas fa-times-circle text-danger"></i><i class="fas fa-check-circle text-success d-none"></i> <small>One uppercase letter</small></div>
+                                    <div><i class="fas fa-times-circle text-danger"></i><i class="fas fa-check-circle text-success d-none"></i> <small>One lowercase letter</small></div>
+                                    <div><i class="fas fa-times-circle text-danger"></i><i class="fas fa-check-circle text-success d-none"></i> <small>One number</small></div>
+                                    <div><i class="fas fa-times-circle text-danger"></i><i class="fas fa-check-circle text-success d-none"></i> <small>One special character</small></div>
+                                </div>
+                                <div class="invalid-feedback" id="password-feedback">
+                                    Password must meet all requirements
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Confirm Password -->
+                        <div class="col-12">
+                            <label for="confirm_password" class="form-label">Confirm Password <span class="text-danger">*</span></label>
+                            <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                            <div class="invalid-feedback">
+                                Passwords must match.
+                            </div>
+                        </div>
+                        
+                        <!-- Company Name -->
+                        <div class="col-12">
+                            <label for="company_name" class="form-label">Company Name</label>
+                            <input type="text" class="form-control" id="company_name" name="company_name"
+                                   value="{{ form_data.company_name if form_data }}">
+                        </div>
+                        
+
+                        <!-- Current Location with Auto-detect -->
+                        <div class="col-12">
+                            <label for="current_location" class="form-label">
+                                Current Location <span class="text-danger">*</span>
+                                <button type="button" id="detect-location" class="btn btn-sm btn-outline-primary ms-2">
+                                    <i class="fas fa-location-arrow"></i> Detect My Location
+                                </button>
+                            </label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="current_location" name="current_location" 
+                                       value="{{ form_data.current_location if form_data }}" required readonly>
+                                <span class="input-group-text">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </span>
+                            </div>
+                            <div class="form-text">We'll use this to show you relevant local professionals.</div>
+                            <div class="invalid-feedback">
+                                Please provide your current location.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg btn-register" id="registerBtn">
+                            <i class="fas fa-user-plus me-2"></i>Register as Client
+                            <span class="spinner-border spinner-border-sm d-none ms-2" role="status" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="login-link">
+                    <p class="mb-0">
+                        Already have an account? 
+                        <a href="{{ url_for('login') }}" class="text-decoration-none">Login here</a>
+                    </p>
+                    <p class="mt-2 mb-0">
+                        Looking to Register as ? 
+                        <a href="{{ url_for('register') }}" class="text-decoration-none">User Registration</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Form validation script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const phoneRegex = /^[6-9][0-9]{9}$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+    // Full Name validation
+    const fullNameInput = document.getElementById('full_name');
+    fullNameInput.addEventListener('input', function() {
+        if (this.value.trim().length < 2) {
+            this.setCustomValidity('Name must be at least 2 characters long');
+        } else if (!/^[a-zA-Z\s]*$/.test(this.value)) {
+            this.setCustomValidity('Name can only contain letters and spaces');
+        } else {
+            this.setCustomValidity('');
+        }
+    });
+
+    // Email validation
+    const emailInput = document.getElementById('email');
+    let emailCheckTimeout;
+
+    emailInput.addEventListener('input', function() {
+        this.value = this.value.trim();
+        if (this.value && !emailRegex.test(this.value)) {
+            this.setCustomValidity('Please enter a valid email address');
+            this.classList.add('is-invalid');
+        } else {
+            this.setCustomValidity('');
+            this.classList.remove('is-invalid');
+            
+            // Check email availability after user stops typing
+            clearTimeout(emailCheckTimeout);
+            if (this.value) {
+                emailCheckTimeout = setTimeout(() => {
+                    const formData = new FormData();
+                    formData.append('email', this.value);
+                    
+                    const csrfToken = document.querySelector('input[name="csrf_token"]').value;
+                    formData.append('csrf_token', csrfToken);
+                    fetch('/check-email', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': csrfToken
+                        }
+                    })
+                    .then(response => {
+                        if (response.status === 409) {
+                            this.setCustomValidity('This email is already registered');
+                            this.classList.add('is-invalid');
+                            return null;
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data) {
+                            this.setCustomValidity('');
+                            this.classList.remove('is-invalid');
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+                }, 500);
+            }
+        }
+    });
+
+    // Phone validation
+    const phoneInput = document.getElementById('phone');
+    phoneInput.addEventListener('input', function() {
+        // Remove any non-digits and limit to 10 digits
+        this.value = this.value.replace(/\D/g, '').substring(0, 10);
+        
+        // Remove leading zeros
+        if (this.value.startsWith('0')) {
+            this.value = this.value.substring(1);
+        }
+        
+        if (this.value && !phoneRegex.test(this.value)) {
+            this.setCustomValidity('Please enter a valid 10-digit Indian mobile number starting with 6-9');
+            this.classList.add('is-invalid');
+        } else {
+            this.setCustomValidity('');
+            this.classList.remove('is-invalid');
+        }
+    });
+
+    // Also validate on blur to catch pasted values
+    phoneInput.addEventListener('blur', function() {
+        if (this.value.startsWith('0')) {
+            this.value = this.value.substring(1);
+        }
+    });
+
+    // Company Name validation (optional)
+    const companyInput = document.getElementById('company_name');
+    companyInput.addEventListener('input', function() {
+        if (this.value && this.value.trim().length < 2) {
+            this.setCustomValidity('Company name must be at least 2 characters long');
+        } else {
+            this.setCustomValidity('');
+        }
+    });
+
+// Password strength checker
+const passwordInput = document.getElementById('password');
+const strengthMeter = document.querySelector('.password-strength');
+const strengthBar = strengthMeter.querySelector('.progress-bar');
+const strengthText = strengthMeter.querySelector('.strength-text');
+const requirements = document.querySelectorAll('.password-requirements div');
+
+function updatePasswordStrength(password) {
+    let strength = 0;
+    const checks = [
+        { regex: /.{8,}/, index: 0 },  // min 8 chars
+        { regex: /[A-Z]/, index: 1 },   // uppercase
+        { regex: /[a-z]/, index: 2 },   // lowercase
+        { regex: /[0-9]/, index: 3 },   // numbers
+        { regex: /[^A-Za-z0-9]/, index: 4 } // special chars
+    ];
+
+    let allPassed = true;
+    checks.forEach(check => {
+        const passed = check.regex.test(password);
+        const requirement = requirements[check.index];
+        const checkIcon = requirement.querySelector('.fa-check-circle');
+        const timesIcon = requirement.querySelector('.fa-times-circle');
+        
+        if (passed) {
+            strength++;
+            checkIcon.classList.remove('d-none');
+            timesIcon.classList.add('d-none');
+        } else {
+            allPassed = false;
+            checkIcon.classList.add('d-none');
+            timesIcon.classList.remove('d-none');
+        }
+    });
+
+    const percent = (strength / 5) * 100;
+    strengthBar.style.width = `${percent}%`;
+
+    if (allPassed) {
+        strengthBar.className = 'progress-bar bg-success';
+        strengthText.textContent = 'Strong';
+        passwordInput.classList.remove('is-invalid');
+        passwordInput.setCustomValidity('');
+    } else {
+        if (strength < 2) {
+            strengthBar.className = 'progress-bar bg-danger';
+            strengthText.textContent = 'Too weak';
+        } else if (strength < 4) {
+            strengthBar.className = 'progress-bar bg-warning';
+            strengthText.textContent = 'Medium';
+        }
+        passwordInput.classList.add('is-invalid');
+        passwordInput.setCustomValidity('Password must meet all requirements');
+    }
+    return allPassed;
+}
+
+passwordInput.addEventListener('input', function() {
+    const isValid = updatePasswordStrength(this.value);
+    if (this.value && !isValid) {
+        this.classList.add('is-invalid');
+    } else {
+        this.classList.remove('is-invalid');
+    }
+});
+
+    // Form validation
+    const form = document.getElementById('registrationForm');
+    form.addEventListener('submit', function(event) {
+        // Don't prevent default yet, we'll handle it after validation
+        event.stopPropagation();
+        
+        // Reset all custom validity messages
+        form.querySelectorAll('input').forEach(input => input.setCustomValidity(''));
+        
+        let isValid = true;
+        
+        // Check required fields
+        const requiredFields = ['full_name', 'email', 'phone', 'password', 'confirm_password', 'current_location'];
+        requiredFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (!field || !field.value.trim()) {
+                if (field) {
+                    field.setCustomValidity('This field is required');
+                }
+                isValid = false;
+            }
+        });
+        
+        // Validate password match
+        const password = document.getElementById('password');
+        const confirmPassword = document.getElementById('confirm_password');
+        if (password && confirmPassword && password.value !== confirmPassword.value) {
+            confirmPassword.setCustomValidity('Passwords do not match');
+            isValid = false;
+        }
+        
+        // Validate password strength
+        if (password && !passwordRegex.test(password.value)) {
+            password.setCustomValidity('Password does not meet requirements');
+            isValid = false;
+        }
+        
+        // Check file size for profile picture if it exists
+        const profilePic = document.getElementById('photo');
+        if (profilePic && profilePic.files.length > 0) {
+            const file = profilePic.files[0];
+            if (file.size > 5 * 1024 * 1024) { // 5MB
+                profilePic.setCustomValidity('File size must be less than 5MB');
+                isValid = false;
+            }
+        }
+        
+        form.classList.add('was-validated');
+        
+        if (!isValid) {
+            // If form is invalid, prevent submission and show validation messages
+            event.preventDefault();
+            return false;
+        }
+        
+        // If we get here, form is valid
+        // Show loading state
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            const spinner = submitBtn.querySelector('.spinner-border');
+            if (spinner) {
+                submitBtn.disabled = true;
+                spinner.classList.remove('d-none');
+            }
+        }
+        
+        // Allow form to submit normally
+        return true;
+    });
+
+// Password validation
+const password = document.getElementById('password');
+const confirmPassword = document.getElementById('confirm_password');
+
+// Update password validation on input
+password.addEventListener('input', function() {
+    const isValid = updatePasswordStrength(this.value);
+    if (this.value && !isValid) {
+        this.classList.add('is-invalid');
+    } else {
+        this.classList.remove('is-invalid');
+    }
+    validatePasswordMatch();
+});
+
+// Update confirm password validation on input
+confirmPassword.addEventListener('input', validatePasswordMatch);
+
+function validatePasswordMatch() {
+    if (confirmPassword.value && password.value !== confirmPassword.value) {
+        confirmPassword.setCustomValidity("Passwords don't match");
+        confirmPassword.classList.add('is-invalid');
+    } else {
+        confirmPassword.setCustomValidity('');
+        confirmPassword.classList.remove('is-invalid');
+    }
+}
+
+    // Location detection
+    const locationBtn = document.getElementById('detect-location');
+    const locationInput = document.getElementById('current_location');
+
+if (locationBtn && locationInput) {
+    locationBtn.addEventListener('click', () => {
+        locationBtn.disabled = true;
+        locationBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Detecting...';
+        
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    // Use OpenStreetMap Nominatim for reverse geocoding
+                    const { latitude, longitude } = position.coords;
+                    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const address = data.address || {};
+                            const locationParts = [
+                                address.road,
+                                address.suburb,
+                                address.city || address.town || address.village,
+                                address.state,
+                                address.country
+                            ].filter(Boolean);
+                            
+                            locationInput.value = locationParts.join(', ');
+                            locationBtn.innerHTML = '<i class="fas fa-check"></i> Location Detected';
+                            locationBtn.classList.remove('btn-outline-primary');
+                            locationBtn.classList.add('btn-success');
+                        })
+                        .catch(() => {
+                            locationInput.value = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+                            locationBtn.innerHTML = '<i class="fas fa-location-arrow"></i> Try Again';
+                            locationBtn.disabled = false;
+                        });
+                },
+                (error) => {
+                    console.error('Geolocation error:', error);
+                    locationBtn.innerHTML = '<i class="fas fa-location-arrow"></i> Try Again';
+                    locationBtn.disabled = false;
+                    alert('Unable to retrieve your location. Please enter it manually.');
+                    locationInput.readOnly = false;
+                }
+            );
+        } else {
+            alert('Geolocation is not supported by your browser. Please enter your location manually.');
+            locationBtn.disabled = false;
+            locationInput.readOnly = false;
+        }
+    });
+}
+});
+</script>
+{% endblock %}

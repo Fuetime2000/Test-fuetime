@@ -1,0 +1,402 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _("Privacy Policy") }} - FueTime{% endblock %}
+
+{% block extra_css %}
+<style>
+    .privacy-hero {
+        background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+        color: white;
+        padding: 4rem 0;
+        margin-bottom: 2rem;
+        border-radius: 0.5rem;
+    }
+    
+    .privacy-content {
+        background: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        padding: 2.5rem;
+    }
+    
+    .privacy-section {
+        margin-bottom: 2.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .privacy-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+    
+    .privacy-section h2 {
+        color: #1e40af;
+        font-weight: 700;
+        margin-bottom: 1.25rem;
+        position: relative;
+        padding-left: 1.5rem;
+    }
+    
+    .privacy-section h2:before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0.6em;
+        height: 0.5em;
+        width: 0.5em;
+        background: #3b82f6;
+        border-radius: 50%;
+    }
+    
+    .privacy-section h3 {
+        color: #374151;
+        font-weight: 600;
+        margin: 1.5rem 0 0.75rem 0;
+    }
+    
+    .privacy-section ul {
+        padding-left: 1.5rem;
+        margin: 0.75rem 0;
+    }
+    
+    .privacy-section ul li {
+        margin-bottom: 0.5rem;
+        line-height: 1.6;
+        color: #4b5563;
+    }
+    
+    .last-updated {
+        background: #e0f2fe;
+        border-left: 4px solid #0ea5e9;
+        padding: 1rem 1.25rem;
+        border-radius: 0.375rem;
+        margin-bottom: 2rem;
+    }
+    
+    .privacy-intro {
+        font-size: 1.1rem;
+        line-height: 1.7;
+        color: #374151;
+        margin-bottom: 2rem;
+    }
+    
+    @media (max-width: 768px) {
+        .privacy-content {
+            padding: 1.5rem;
+        }
+        
+        .privacy-hero {
+            padding: 3rem 1rem;
+            text-align: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="privacy-hero text-center mb-5">
+        <div class="container">
+            <h1 class="display-5 fw-bold mb-3">{{ _("Privacy Policy") }}</h1>
+            <p class="lead mb-0">{{ _("Your privacy is important to us. Learn how we protect your information.") }}</p>
+        </div>
+    </div>
+    
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="privacy-content">
+                <div class="last-updated">
+                    <i class="fas fa-info-circle me-2"></i>
+                    {{ _("Last updated: April 29, 2025") }}
+                </div>
+                
+                <p class="privacy-intro">
+                    {{ _("At FueTime, we are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy outlines how we collect, use, disclose, and safeguard your data when you use our platform. Please read this policy carefully to understand our practices.") }}
+                </p>
+                
+                <div class="privacy-section">
+                    <h2>{{ _("1. Information We Collect") }}</h2>
+                    <p>{{ _("We collect various types of information to provide and improve our services:") }}</p>
+                    
+                    <h3>{{ _("1.1 Personal Information") }}</h3>
+                    <ul>
+                        <li>{{ _("Full name and username") }}</li>
+                        <li>{{ _("Email address and phone number") }}</li>
+                        <li>{{ _("Date of birth and age") }}</li>
+                        <li>{{ _("Profile photo") }}</li>
+                        <li>{{ _("Government-issued ID (for service provider verification)") }}</li>
+                    </ul>
+
+                    <h3>{{ _("1.2 Professional Information") }}</h3>
+                    <ul>
+                        <li>{{ _("Skills and qualifications") }}</li>
+                        <li>{{ _("Work experience and education") }}</li>
+                        <li>{{ _("Service categories and pricing") }}</li>
+                        <li>{{ _("Professional certifications and licenses") }}</li>
+                    </ul>
+
+                    <h3>{{ _("1.3 Location Information") }}</h3>
+                    <ul>
+                        <li>{{ _("Current location (with your permission)") }}</li>
+                        <li>{{ _("Service area preferences") }}</li>
+                        <li>{{ _("Work locations and history") }}</li>
+                    </ul>
+
+                    <h3>{{ _("1.4 Usage Information") }}</h3>
+                    <ul>
+                        <li>{{ _("Device information and IP address") }}</li>
+                        <li>{{ _("Browser type and settings") }}</li>
+                        <li>{{ _("Usage patterns and preferences") }}</li>
+                        <li>{{ _("Communication history") }}</li>
+                    </ul>
+                </div>
+
+                <div class="privacy-section">
+                    <h2>{{ _("2. How We Use Your Information") }}</h2>
+                    <p>{{ _("We use your information to:") }}</p>
+                    <ul>
+                        <li>{{ _("Provide and improve our services") }}</li>
+                        <li>{{ _("Communicate with you") }}</li>
+                        <li>{{ _("Enhance platform security and prevent fraud") }}</li>
+                    </ul>
+                </div>
+
+                <div class="privacy-section">
+                    <h2>{{ _("3. Data Protection & Security") }}</h2>
+                    <p>{{ _("We implement industry-standard security measures to protect your data:") }}</p>
+                    <ul>
+                        <li>{{ _("Encryption of sensitive information") }}</li>
+                        <li>{{ _("Secure socket layer (SSL) technology") }}</li>
+                        <li>{{ _("Regular security audits and updates") }}</li>
+                        <li>{{ _("Access controls and authentication") }}</li>
+                        <li>{{ _("Data backup and recovery systems") }}</li>
+                    </ul>
+                </div>
+
+                <div class="privacy-section">
+                    <h2>{{ _("4. Your Rights & Choices") }}</h2>
+                    <p>{{ _("You have the right to:") }}</p>
+                    <ul>
+                        <li>{{ _("Access your personal information") }}</li>
+                        <li>{{ _("Request correction of inaccurate data") }}</li>
+                        <li>{{ _("Request deletion of your information") }}</li>
+                        <li>{{ _("Opt-out of marketing communications") }}</li>
+                        <li>{{ _("Export your data in a portable format") }}</li>
+                    </ul>
+                </div>
+
+                <div class="privacy-section">
+                    <h2>{{ _("5. Information Sharing & Disclosure") }}</h2>
+                    <p>{{ _("We may share your information with:") }}</p>
+                    <ul>
+                        <li>{{ _("Other users as necessary for service provision") }}</li>
+                        <li>{{ _("Payment processors for transaction handling") }}</li>
+                        <li>{{ _("Service providers who assist our operations") }}</li>
+                        <li>{{ _("Law enforcement when required by law") }}</li>
+                    </ul>
+                </div>
+
+                <div class="privacy-section">
+                    <h2>{{ _("6. Data Retention") }}</h2>
+                    <p>{{ _("We retain your information for as long as necessary to:") }}</p>
+                    <ul>
+                        <li>{{ _("Provide our services") }}</li>
+                        <li>{{ _("Comply with legal obligations") }}</li>
+                        <li>{{ _("Resolve disputes") }}</li>
+                        <li>{{ _("Enforce our agreements") }}</li>
+                    </ul>
+                </div>
+
+                <div class="privacy-section">
+                    <h2>{{ _("7. International Data Transfers") }}</h2>
+                    <p>{{ _("Your information may be transferred and processed in countries where data protection laws differ from your jurisdiction. We ensure appropriate safeguards are in place for such transfers.") }}</p>
+                </div>
+
+                <div class="privacy-section">
+                    <h2>{{ _("8. Children's Privacy") }}</h2>
+                    <p>{{ _("Our services are not intended for users under 18 years of age. We do not knowingly collect information from children.") }}</p>
+                </div>
+
+                <div class="privacy-section">
+                    <h2>{{ _("9. Cookies & Tracking Technologies") }}</h2>
+                    <p>{{ _("We use cookies and similar technologies to:") }}</p>
+                    <ul>
+                        <li>{{ _("Remember your preferences") }}</li>
+                        <li>{{ _("Analyze usage patterns") }}</li>
+                        <li>{{ _("Enhance security") }}</li>
+                        <li>{{ _("Provide personalized content") }}</li>
+                    </ul>
+                </div>
+
+                <div class="privacy-section">
+                    <h2>{{ _("10. Policy Updates") }}</h2>
+                    <p>{{ _("We may update this Privacy Policy periodically. We will notify you of significant changes through:") }}</p>
+                    <ul>
+                        <li>{{ _("Email notifications") }}</li>
+                        <li>{{ _("Platform announcements") }}</li>
+                        <li>{{ _("Website notices") }}</li>
+                    </ul>
+                </div>
+
+                <div class="privacy-section">
+                    <h2>{{ _("11. Contact Us") }}</h2>
+                    <p>{{ _("For privacy-related inquiries or to exercise your rights:") }}</p>
+                    <ul>
+                        <li>{{ _("Email: privacy@fuetime.com") }}</li>
+                        <li>{{ _("Privacy Team: Available Monday-Friday, 9 AM - 6 PM IST") }}</li>
+                        <li>{{ _("Response Time: Within 48 hours") }}</li>
+                    </ul>
+                </div>
+
+                <div class="alert alert-secondary mt-4">
+                    <p class="mb-0"><small>{{ _("By using FueTime, you acknowledge that you have read and understood this Privacy Policy and agree to its terms.") }}</small></p>
+                        <li>{{ _("Contact details: Full name, email address, phone number") }}</li>
+                        <li>{{ _("Identity information: Date of birth, age, profile photo") }}</li>
+                        <li>{{ _("Verification: Government-issued ID (for service providers)") }}</li>
+                    </ul>
+                    
+                    <h3>{{ _("1.2 Professional Information") }}</h3>
+                    <ul>
+                        <li>{{ _("Skills, qualifications, and work experience") }}</li>
+                        <li>{{ _("Education background and professional certifications") }}</li>
+                        <li>{{ _("Service categories and pricing details") }}</li>
+                    </ul>
+                    
+                    <h3>{{ _("1.3 Location Data") }}</h3>
+                    <ul>
+                        <li>{{ _("Current location (with your permission)") }}</li>
+                        <li>{{ _("Service area preferences and work locations") }}</li>
+                    </ul>
+                    
+                    <h3>{{ _("1.4 Usage Information") }}</h3>
+                    <ul>
+                        <li>{{ _("Device and connection information") }}</li>
+                        <li>{{ _("Browser type, settings, and usage patterns") }}</li>
+                        <li>{{ _("Communication history on our platform") }}</li>
+                    </ul>
+                </div>
+                
+                <div class="privacy-section">
+                    <h2>{{ _("2. How We Use Your Information") }}</h2>
+                    
+                    <h3>{{ _("2.1 Service Provision") }}</h3>
+                    <ul>
+                        <li>{{ _("Connect service providers with clients") }}</li>
+                        <li>{{ _("Process payments and verify transactions") }}</li>
+                        <li>{{ _("Provide customer support and service improvements") }}</li>
+                    </ul>
+                    
+                    <h3>{{ _("2.2 Communication") }}</h3>
+                    <ul>
+                        <li>{{ _("Send important service updates and notifications") }}</li>
+                        <li>{{ _("Facilitate secure messaging between users") }}</li>
+                        <li>{{ _("Share promotional offers (with your consent)") }}</li>
+                    </ul>
+                    
+                    <h3>{{ _("2.3 Platform Enhancement") }}</h3>
+                    <ul>
+                        <li>{{ _("Analyze usage patterns to improve our services") }}</li>
+                        <li>{{ _("Develop new features and functionality") }}</li>
+                        <li>{{ _("Ensure platform security and prevent fraud") }}</li>
+                    </ul>
+                </div>
+                
+                <div class="privacy-section">
+                    <h2>{{ _("3. Data Protection & Security") }}</h2>
+                    <p>{{ _("We implement robust security measures to protect your information:") }}</p>
+                    <ul>
+                        <li>{{ _("End-to-end encryption for sensitive data") }}</li>
+                        <li>{{ _("Secure socket layer (SSL) technology") }}</li>
+                        <li>{{ _("Regular security audits and system updates") }}</li>
+                        <li>{{ _("Strict access controls and authentication") }}</li>
+                        <li>{{ _("Comprehensive data backup and recovery systems") }}</li>
+                    </ul>
+                </div>
+                
+                <div class="privacy-section">
+                    <h2>{{ _("4. Your Rights & Choices") }}</h2>
+                    <p>{{ _("You have control over your personal information:") }}</p>
+                    <ul>
+                        <li><strong>{{ _("Access:") }}</strong> {{ _("Request a copy of your data") }}</li>
+                        <li><strong>{{ _("Correction:") }}</strong> {{ _("Update or correct inaccuracies") }}</li>
+                        <li><strong>{{ _("Deletion:") }}</strong> {{ _("Request removal of your information") }}</li>
+                        <li><strong>{{ _("Opt-out:") }}</strong> {{ _("Unsubscribe from marketing communications") }}</li>
+                        <li><strong>{{ _("Portability:") }}</strong> {{ _("Request data in a portable format") }}</li>
+                    </ul>
+                </div>
+                
+                <div class="privacy-section">
+                    <h2>{{ _("5. Information Sharing & Disclosure") }}</h2>
+                    <p>{{ _("We may share your information with:") }}</p>
+                    <ul>
+                        <li><strong>{{ _("Service Providers:") }}</strong> {{ _("For platform operations and support") }}</li>
+                        <li><strong>{{ _("Payment Processors:") }}</strong> {{ _("To facilitate transactions") }}</li>
+                        <li><strong>{{ _("Legal Requirements:") }}</strong> {{ _("When required by law or to protect rights") }}</li>
+                    </ul>
+                </div>
+                
+                <div class="privacy-section">
+                    <h2>{{ _("6. Data Retention") }}</h2>
+                    <p>{{ _("We retain your information only as long as necessary to:") }}</p>
+                    <ul>
+                        <li>{{ _("Provide and maintain our services") }}</li>
+                        <li>{{ _("Comply with legal obligations") }}</li>
+                        <li>{{ _("Resolve disputes and enforce agreements") }}</li>
+                    </ul>
+                </div>
+                
+                <div class="privacy-section">
+                    <h2>{{ _("7. International Data Transfers") }}</h2>
+                    <p>{{ _("Your information may be processed in countries with different data protection laws. We ensure appropriate safeguards are in place for international data transfers in accordance with applicable laws.") }}</p>
+                </div>
+                
+                <div class="privacy-section">
+                    <h2>{{ _("8. Children's Privacy") }}</h2>
+                    <p>{{ _("Our services are not intended for users under 18 years of age. We do not knowingly collect personal information from children. If we become aware of such collection, we will take steps to remove the information.") }}</p>
+                </div>
+                
+                <div class="privacy-section">
+                    <h2>{{ _("9. Cookies & Tracking Technologies") }}</h2>
+                    <p>{{ _("We use cookies and similar technologies to:") }}</p>
+                    <ul>
+                        <li>{{ _("Remember your preferences and settings") }}</li>
+                        <li>{{ _("Analyze platform usage and performance") }}</li>
+                        <li>{{ _("Enhance security and prevent fraud") }}</li>
+                        <li>{{ _("Deliver personalized content and ads") }}</li>
+                    </ul>
+                </div>
+                
+                <div class="privacy-section">
+                    <h2>{{ _("10. Policy Updates") }}</h2>
+                    <p>{{ _("We may update this Privacy Policy periodically. We will notify you of significant changes through:") }}</p>
+                    <ul>
+                        <li>{{ _("Email notifications to registered users") }}</li>
+                        <li>{{ _("Prominent notices on our platform") }}</li>
+                        <li>{{ _("Updates to the \"Last Updated\" date") }}</li>
+                    </ul>
+                </div>
+                
+                <div class="privacy-section">
+                    <h2>{{ _("11. Contact Us") }}</h2>
+                    <p>{{ _("For privacy-related inquiries or to exercise your rights:") }}</p>
+                    <ul>
+                        <li><i class="fas fa-envelope me-2"></i> {{ _("Email:") }} <a href="mailto:privacy@fuetime.com">privacy@fuetime.com</a></li>
+                        <li><i class="fas fa-phone me-2"></i> {{ _("Support Hours:") }} {{ _("Monday-Friday, 9 AM - 6 PM IST") }}</li>
+                        <li><i class="fas fa-clock me-2"></i> {{ _("Response Time:") }} {{ _("Within 48 hours") }}</li>
+                    </ul>
+                </div>
+                
+                <div class="alert alert-light border mt-5">
+                    <p class="mb-0 text-center">
+                        <small class="text-muted">
+                            {{ _("By using FueTime, you acknowledge that you have read, understood, and agree to be bound by this Privacy Policy and our Terms of Service.") }}
+                        </small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

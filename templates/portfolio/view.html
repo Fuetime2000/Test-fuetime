@@ -1,0 +1,978 @@
+{% extends "base.html" %}
+
+{% block styles %}
+<style>
+    .hover-shadow {
+        transition: box-shadow 0.3s ease;
+    }
+
+    .hover-shadow:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .portfolio-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .portfolio-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+    
+    .portfolio-card .project-image-wrapper img {
+        transition: transform 0.3s ease;
+    }
+    
+    .portfolio-card:hover .project-image-wrapper img {
+        transform: scale(1.05);
+    }
+    
+    .portfolio-link {
+        display: block;
+        color: inherit;
+    }
+    
+    .portfolio-link:hover {
+        text-decoration: none;
+        color: inherit;
+    }
+    
+    .bg-gradient {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+    
+    .text-gradient {
+        background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .hover-lift {
+        transition: transform 0.3s ease;
+        box-shadow: 0 0 0 rgba(0,0,0,0);
+    }
+
+    .hover-lift:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .rating-container {
+        transition: all 0.3s ease;
+    }
+    
+    .rating-container:hover {
+        transform: scale(1.02);
+    }
+    
+    .rating-stars i {
+        transition: color 0.3s ease;
+    }
+    
+    .card {
+        transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 1rem 3rem rgba(0,0,0,.175)!important;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes scaleIn {
+        from { transform: scale(0.9); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+    
+    @keyframes slideIn {
+        from { transform: translateX(-20px); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    
+    .portfolio-section {
+        animation: scaleIn 0.5s ease-out forwards;
+    }
+    
+    .skill-card {
+        animation: slideIn 0.3s ease-out forwards;
+        transition: transform 0.2s ease;
+    }
+    
+    .skill-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .project-card {
+        animation: fadeIn 0.5s ease-out forwards;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .project-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .rating-stars i {
+        transition: transform 0.2s ease, color 0.2s ease;
+    }
+    
+    .rating-stars i:hover {
+        transform: scale(1.2);
+    }
+
+    .rating-star-wrapper {
+        position: relative;
+        cursor: pointer;
+        display: inline-block;
+        margin-right: 5px;
+    }
+
+    .rating-label {
+        cursor: pointer;
+        color: #dee2e6;
+        margin: 0;
+        transition: all 0.2s ease;
+    }
+
+    .rating-input:checked ~ .rating-label i,
+    .rating-input:hover ~ .rating-label i {
+        color: #ffc107;
+        transform: scale(1.2);
+    }
+
+    .rating-star-wrapper:has(.rating-input:checked) .rating-label i,
+    .rating-star-wrapper:hover .rating-label i {
+        color: #ffc107;
+        transform: scale(1.2);
+    }
+
+    @media (max-width: 576px) {
+        .rating-star-wrapper {
+            padding: 10px;
+        }
+        .rating-label i {
+            font-size: 2rem;
+        }
+    }
+    
+    .toast {
+        animation: slideIn 0.3s ease-out forwards;
+    }
+    
+    .modal.fade .modal-dialog {
+        transition: transform 0.3s ease-out;
+        transform: scale(0.95);
+    }
+    
+    .modal.show .modal-dialog {
+        transform: scale(1);
+    }
+/* General Styles */
+.portfolio-section {
+    transition: all 0.3s ease;
+}
+
+.portfolio-section:hover {
+    transform: translateY(-5px);
+}
+
+/* Rating Styles */
+.rating-input {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+}
+
+.rating-input input {
+    display: none;
+}
+
+.rating-input label {
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: #ddd;
+    margin: 0 2px;
+    transition: color 0.2s ease;
+}
+
+.rating-input label:hover,
+.rating-input label:hover ~ label,
+.rating-input input:checked ~ label {
+    color: #ffc107;
+}
+
+.rating-stars .fa-star {
+    font-size: 1.2rem;
+    margin-right: 2px;
+    transition: color 0.2s ease;
+}
+
+.rating-item .fa-star {
+    font-size: 0.9rem;
+}
+
+/* Card Styles */
+.portfolio-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.portfolio-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.project-image-wrapper {
+    position: relative;
+    overflow: hidden;
+    border-radius: 15px 15px 0 0;
+}
+
+.project-image-wrapper img {
+    transition: transform 0.5s ease;
+}
+
+.project-image-wrapper:hover img {
+    transform: scale(1.05);
+}
+
+/* Skill Card Styles */
+.skill-card {
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0,0,0,0.1);
+}
+
+.skill-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.progress {
+    border-radius: 10px;
+    background-color: #e9ecef;
+    overflow: hidden;
+}
+
+.progress-bar {
+    transition: width 1s ease-in-out;
+}
+
+/* Badge Styles */
+.custom-badge {
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.custom-badge:hover {
+    transform: translateY(-2px);
+}
+
+/* Button Styles */
+.action-btn {
+    border-radius: 8px;
+    padding: 8px 20px;
+    transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .portfolio-header {
+        text-align: center;
+    }
+    
+    .portfolio-actions {
+        justify-content: center;
+        margin-top: 1rem;
+    }
+    
+    .skill-card {
+        margin-bottom: 1rem;
+    }
+}
+
+/* Animation Classes */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-11">
+                <!-- Profile Header -->
+                <div class="portfolio-header position-relative overflow-hidden bg-gradient p-5 mb-5 rounded-lg shadow-lg">
+                    <div class="position-absolute top-0 start-0 w-100 h-100 bg-primary opacity-10"></div>
+                    <div class="position-relative z-index-1">
+                        <div class="row align-items-center">
+                            <div class="col-lg-8">
+                                <div class="text-center text-lg-start">
+                                    <h1 class="display-4 fw-bold text-gradient mb-2">Software Development</h1>
+                                    <p class="lead text-muted mb-4">{{ user.full_name }}'s Professional Portfolio</p>
+                                    <div class="d-flex flex-wrap align-items-center gap-3 justify-content-center justify-content-lg-start">
+                                        <div class="rating-container d-flex align-items-center bg-white p-2 rounded-pill shadow-sm">
+                                            <div class="rating-stars me-2" data-rating="{{ portfolio.average_rating|default(0.0) }}">
+                                                {% for i in range(5) %}
+                                                <i class="fas fa-star {% if i < portfolio.average_rating|default(0)|int %}text-warning{% else %}text-muted{% endif %}"></i>
+                                                {% endfor %}
+                                            </div>
+                                            <span class="text-muted small">
+                                                {{ '%.1f'|format(portfolio.average_rating|default(0.0)) }} ({{ portfolio.total_ratings|default(0) }} reviews)
+                                            </span>
+                                        </div>
+                                        {% if current_user.id != user.id %}
+                                        <button class="btn btn-primary btn-sm rounded-pill px-4 shadow-sm hover-lift" data-bs-toggle="modal" data-bs-target="#ratingModal">
+                                            <i class="fas fa-star me-2"></i>Rate Portfolio
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 mt-4 mt-lg-0">
+                                <div class="card border-0 shadow-sm h-100">
+                                    <div class="card-body p-4">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <i class="fas fa-code fa-2x text-primary me-3"></i>
+                                            <h4 class="mb-0">Professional Experience</h4>
+                                        </div>
+                                        <p class="text-muted mb-0">Professional website and application developer with 5+ years of experience in creating innovative digital solutions.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% if portfolio.description %}
+                    <div class="border-top pt-4">
+                        <p class="lead text-muted mb-0">{{ portfolio.description }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Skills Section -->
+                <div class="portfolio-section bg-white rounded-lg shadow-sm p-4 mb-5 fade-in">
+                    <div class="skills-header position-relative mb-4 p-3 bg-gradient rounded-lg shadow-sm">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                            <div class="skills-title-wrapper">
+                                <h2 class="h3 mb-0 text-gradient fw-bold">
+                                    <i class="fas fa-code me-2"></i>Skills &amp; Expertise
+                                </h2>
+                                <p class="text-muted mb-0 mt-1 small">My professional capabilities and technical knowledge</p>
+                            </div>
+                            {% if current_user.is_authenticated and current_user.id == portfolio.user_id %}
+                            <button type="button" class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#skillsModal">
+                                <i class="fas fa-plus-circle me-2"></i>
+                                <span class="d-none d-sm-inline">Add/Edit Skills</span>
+                                <span class="d-inline d-sm-none">Add</span>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row g-4" id="skillsList">
+                        {% for skill in portfolio.skills %}
+                        <div class="col-sm-6 col-md-4 col-lg-3">
+                            <div class="skill-card bg-white p-4 h-100 border-start border-4 border-primary">
+                                <h5 class="fw-bold text-primary mb-3">{{ skill.name }}</h5>
+                                <div class="progress mb-3" style="height: 8px;">
+                                    <div class="progress-bar bg-primary" 
+                                         role="progressbar" 
+                                         style="width: {{ skill.proficiency_level * 20 }}%"
+                                         aria-valuenow="{{ skill.proficiency_level }}" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="5">
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-clock text-muted me-2"></i>
+                                    <span class="text-muted">{{ skill.years_experience }} years</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+                <!-- Projects Section -->
+                <div class="portfolio-section bg-white rounded-lg shadow-sm p-4 fade-in">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="h3 mb-0">Featured Projects</h2>
+                        {% if current_user.id == user.id %}
+                        <a href="{{ url_for('portfolio.add_project', user_id=user.id) }}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus me-1"></i> Add Project
+                        </a>
+                        {% endif %}
+                    </div>
+                    <div class="row g-4">
+                        {% for project in portfolio.projects %}
+                        <div class="col-md-6 col-lg-4">
+                            <div class="portfolio-card card h-100 position-relative shadow-sm hover-shadow">
+                                <a href="{{ url_for('view_project', project_id=project.id) }}" 
+                                   class="text-decoration-none stretched-link">
+                                    {% if project.image_url %}
+                                    <div class="project-image-wrapper overflow-hidden">
+                                        <img src="{{ url_for('static', filename='uploads/' + project.image_url) }}" 
+                                             class="card-img-top object-fit-cover" style="height: 200px;" alt="{{ project.title }}">
+                                    </div>
+                                    {% endif %}
+                                    <div class="card-body">
+                                        <h3 class="h5 card-title fw-bold mb-3 text-dark">{{ project.title }}</h3>
+                                        <p class="card-text text-muted">{{ project.description }}</p>
+                                        <div class="mb-3">
+                                            <span class="custom-badge badge bg-primary px-3">{{ project.category }}</span>
+                                            {% for tech in project.technologies %}
+                                            <span class="custom-badge badge bg-light text-dark px-3 ms-1">{{ tech.name }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </a>
+                                <div class="card-footer bg-transparent border-0 position-relative">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        {% if current_user.id == user.id %}
+                                        <div class="btn-group">
+                                            <form action="{{ url_for('portfolio.delete_project', project_id=project.id) }}" 
+                                                  method="POST" class="d-inline">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                                        onclick="return confirm('Are you sure you want to delete this project?')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                        {% endif %}
+                                        <div class="text-muted small">
+                                            {% if project.start_date %}
+                                            <i class="fas fa-calendar-alt me-1"></i>
+                                            {{ project.start_date.strftime('%b %Y') }}
+                                            {% if project.end_date %}
+                                            - {{ project.end_date.strftime('%b %Y') }}
+                                            {% else %}
+                                            - Present
+                                            {% endif %}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Portfolio Modal -->
+<div class="modal fade" id="addPortfolioModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ _('Add Portfolio Item') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('portfolio.add_project', user_id=current_user.id) }}" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">{{ _('Title') }} *</label>
+                        <input type="text" class="form-control" id="title" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">{{ _('Description') }} *</label>
+                        <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="category" class="form-label">{{ _('Category') }} *</label>
+                        <select class="form-select" id="category" name="category" required>
+                            <option value="">Select a category</option>
+                            <option value="Web Development">Web Development</option>
+                            <option value="Mobile App">Mobile App</option>
+                            <option value="Desktop Application">Desktop Application</option>
+                            <option value="API/Backend">API/Backend</option>
+                            <option value="Data Science">Data Science</option>
+                            <option value="Machine Learning">Machine Learning</option>
+                            <option value="DevOps">DevOps</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="technologies" class="form-label">{{ _('Technologies Used') }}</label>
+                        <input type="text" class="form-control" id="technologies" name="technologies" placeholder="e.g., Python, React, Node.js (comma-separated)">
+                        <div class="form-text">Enter technologies separated by commas</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="project_url" class="form-label">{{ _('Project URL') }}</label>
+                        <input type="url" class="form-control" id="project_url" name="project_url" placeholder="https://...">
+                    </div>
+                    <div class="mb-3">
+                        <label for="project_image" class="form-label">{{ _('Project Image') }}</label>
+                        <input type="file" class="form-control" id="project_image" name="project_image" accept="image/*">
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="start_date" class="form-label">{{ _('Start Date') }}</label>
+                            <input type="date" class="form-control" id="start_date" name="start_date">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="end_date" class="form-label">{{ _('End Date') }}</label>
+                            <input type="date" class="form-control" id="end_date" name="end_date">
+                            <div class="form-text">Leave empty if ongoing</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancel') }}</button>
+                    <button type="submit" class="btn btn-primary">{{ _('Add Project') }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Rating Modal -->
+<div class="modal fade" id="ratingModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-bottom-0 bg-light">
+                <h5 class="modal-title fw-bold"><i class="fas fa-star me-2 text-warning"></i>Rate Portfolio</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="ratingForm">
+                    <div class="ratings-container text-center mb-3">
+                        <div class="d-flex justify-content-center gap-3">
+                            {% for i in range(5) %}
+                            <div class="rating-star-wrapper">
+                                <input class="rating-input visually-hidden" type="radio" name="rating" id="star{{ i + 1 }}" value="{{ i + 1 }}">
+                                <label class="rating-label" for="star{{ i + 1 }}">
+                                    <i class="fas fa-star fs-2"></i>
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="rating-value mt-2 text-muted">Select rating</div>
+                    </div>
+                    <div class="mt-3">
+                        <textarea class="form-control" id="comment" rows="3" placeholder="Leave a comment (optional)"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-top-0 bg-light">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary px-4" id="submitRating">Submit Rating</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Skills Modal -->
+<div class="modal fade" id="skillsModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-bottom-0 bg-light">
+                <h5 class="modal-title fw-bold"><i class="fas fa-tools me-2"></i>Manage Skills</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="skillsForm">
+                    <div class="skills-list">
+                        {% for skill in portfolio.skills %}
+                        <div class="skill-item mb-4 p-3 border rounded-3 bg-white shadow-sm">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-code text-primary me-2"></i>
+                                <input type="text" class="form-control form-control-lg skill-name" value="{{ skill.name }}" placeholder="Enter skill name">
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col">
+                                    <label class="form-label d-flex justify-content-between">
+                                        <span>Proficiency</span>
+                                        <span class="badge bg-primary proficiency-value">{{ skill.proficiency_level }}/5</span>
+                                    </label>
+                                    <input type="range" class="form-range proficiency" min="1" max="5" value="{{ skill.proficiency_level }}">
+                                </div>
+                                <div class="col">
+                                    <label class="form-label">Experience (years)</label>
+                                    <input type="number" class="form-control years" value="{{ skill.years_experience }}" step="0.5" min="0">
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <button type="button" class="btn btn-outline-primary d-block w-100 py-2" id="addSkillBtn">
+                        <i class="fas fa-plus-circle me-2"></i>Add New Skill
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer border-top-0 bg-light">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary px-4" id="saveSkills">Save Skills</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let csrfToken = '{{ csrf_token() }}';
+    
+    // Rating functionality
+    const ratingModal = document.getElementById('ratingModal');
+    const submitRatingBtn = document.getElementById('submitRating');
+    const ratingForm = document.getElementById('ratingForm');
+    const ratingsContainer = document.querySelector('.ratings-container');
+    
+    function loadRatings() {
+        fetch(`/portfolio/ratings/{{ portfolio.id }}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Update average rating display with animation
+                    updateAverageRating(data.average_rating, data.total_ratings);
+                    
+                    // Pre-select user's rating if exists
+                    if (data.user_rating) {
+                        document.querySelector(`#star${data.user_rating}`).checked = true;
+                    }
+                    
+                    // Display ratings with animation
+                    const ratingsHTML = data.ratings.map((rating, index) => `
+                        <div class="rating-item border rounded-3 p-3 mb-3 bg-white shadow-sm" 
+                             style="animation: fadeIn 0.5s ease-in forwards; animation-delay: ${index * 0.1}s; opacity: 0;">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3">
+                                        <i class="fas fa-user-circle fa-2x text-primary"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold">${rating.user}</h6>
+                                        <div class="mt-1">
+                                            ${[1,2,3,4,5].map(i => `
+                                                <i class="fas fa-star${i <= rating.rating ? ' text-warning' : ' text-muted'}"></i>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                </div>
+                                <small class="text-muted">${rating.date}</small>
+                            </div>
+                            ${rating.comment ? `
+                                <div class="mt-2 p-2 bg-light rounded-3">
+                                    <p class="mb-0 text-muted">${rating.comment}</p>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `).join('');
+                    
+                    ratingsContainer.innerHTML = ratingsHTML;
+                }
+            });
+    }
+    
+    function updateAverageRating(average, total) {
+        const ratingStars = document.querySelector('.rating-stars');
+        const stars = ratingStars.querySelectorAll('.fa-star');
+        
+        // Animate stars one by one
+        stars.forEach((star, index) => {
+            setTimeout(() => {
+                star.style.transform = 'scale(1.2)';
+                star.classList.toggle('text-warning', index < Math.round(average));
+                star.classList.toggle('text-muted', index >= Math.round(average));
+                
+                setTimeout(() => {
+                    star.style.transform = 'scale(1)';
+                }, 200);
+            }, index * 100);
+        });
+        
+        // Update text with animation
+        const textElement = ratingStars.nextElementSibling;
+        textElement.style.opacity = '0';
+        setTimeout(() => {
+            textElement.textContent = `${average} (${total} reviews)`;
+            textElement.style.opacity = '1';
+        }, 500);
+    }
+    
+    if (ratingModal) {
+        ratingModal.addEventListener('show.bs.modal', loadRatings);
+        
+        // Enhanced rating stars interaction
+        const ratingStars = ratingForm.querySelectorAll('input[name="rating"]');
+        const ratingValue = ratingForm.querySelector('.rating-value');
+        const ratingTexts = ['Very Poor', 'Poor', 'Average', 'Good', 'Excellent'];
+
+        ratingStars.forEach((star, index) => {
+            star.addEventListener('change', () => {
+                ratingValue.textContent = ratingTexts[index];
+                ratingValue.style.color = '#ffc107';
+                
+                // Animate the selected star and update previous stars
+                const wrapper = star.closest('.rating-star-wrapper');
+                const allWrappers = ratingForm.querySelectorAll('.rating-star-wrapper');
+                
+                allWrappers.forEach((w, i) => {
+                    if (i <= index) {
+                        w.querySelector('.rating-label i').style.color = '#ffc107';
+                        w.style.transform = 'scale(1.1)';
+                    } else {
+                        w.querySelector('.rating-label i').style.color = '#dee2e6';
+                        w.style.transform = 'scale(1)';
+                    }
+                });
+
+                setTimeout(() => {
+                    allWrappers.forEach(w => w.style.transform = 'scale(1)');
+                }, 200);
+            });
+
+            // Handle hover effects
+            star.closest('.rating-star-wrapper').addEventListener('mouseenter', () => {
+                const allWrappers = ratingForm.querySelectorAll('.rating-star-wrapper');
+                allWrappers.forEach((w, i) => {
+                    if (i <= index) {
+                        w.querySelector('.rating-label i').style.color = '#ffc107';
+                    }
+                });
+                ratingValue.textContent = ratingTexts[index];
+                ratingValue.style.color = '#6c757d';
+            });
+
+            star.closest('.rating-star-wrapper').addEventListener('mouseleave', () => {
+                const checkedStar = ratingForm.querySelector('input[name="rating"]:checked');
+                const checkedIndex = checkedStar ? parseInt(checkedStar.value) - 1 : -1;
+                
+                const allWrappers = ratingForm.querySelectorAll('.rating-star-wrapper');
+                allWrappers.forEach((w, i) => {
+                    if (checkedIndex >= 0 && i <= checkedIndex) {
+                        w.querySelector('.rating-label i').style.color = '#ffc107';
+                    } else {
+                        w.querySelector('.rating-label i').style.color = '#dee2e6';
+                    }
+                });
+
+                ratingValue.textContent = checkedStar ? ratingTexts[checkedIndex] : 'Select rating';
+                ratingValue.style.color = checkedStar ? '#ffc107' : '#6c757d';
+            });
+        });
+        
+        submitRatingBtn.addEventListener('click', () => {
+            const rating = ratingForm.querySelector('input[name="rating"]:checked')?.value;
+            const comment = document.getElementById('comment').value;
+            
+            if (!rating) {
+                showToast('Please select a rating', 'warning');
+                return;
+            }
+            
+            submitRatingBtn.disabled = true;
+            submitRatingBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Submitting...';
+            
+            fetch(`/portfolio/rate/{{ portfolio.id }}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({ rating: parseInt(rating), comment })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    loadRatings();
+                    document.getElementById('comment').value = '';
+                    showToast('Rating submitted successfully!', 'success');
+                } else {
+                    showToast(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                showToast('An error occurred. Please try again.', 'error');
+            })
+            .finally(() => {
+                submitRatingBtn.disabled = false;
+                submitRatingBtn.innerHTML = 'Submit Rating';
+            });
+        });
+    }
+    
+    // Toast notification function
+    function showToast(message, type) {
+        const toast = document.createElement('div');
+        toast.className = `toast align-items-center text-white bg-${type === 'success' ? 'success' : type === 'warning' ? 'warning' : 'danger'} border-0`;
+        toast.setAttribute('role', 'alert');
+        toast.setAttribute('aria-live', 'assertive');
+        toast.setAttribute('aria-atomic', 'true');
+        
+        toast.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">
+                    ${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        `;
+        
+        document.body.appendChild(toast);
+        const bsToast = new bootstrap.Toast(toast, { delay: 3000 });
+        bsToast.show();
+        
+        toast.addEventListener('hidden.bs.toast', () => toast.remove());
+    }
+
+    // Portfolio form handling
+    const portfolioForm = document.getElementById('portfolioForm');
+    if (portfolioForm) {
+        portfolioForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                title: document.getElementById('portfolioTitle').value,
+                description: document.getElementById('portfolioDescription').value,
+                image_url: document.getElementById('portfolioImage').value || null,
+                project_url: document.getElementById('portfolioUrl').value || null,
+                date: new Date().toISOString().split('T')[0]
+            };
+
+            try {
+                const response = await fetch('/api/portfolio/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    // Add new portfolio item to the grid
+                    const portfolioItems = document.getElementById('portfolioItems');
+                    const noItemsMessage = portfolioItems.querySelector('.text-center');
+                    if (noItemsMessage) {
+                        noItemsMessage.remove();
+                    }
+
+                    const newItem = `
+                        <div class="col-md-6 col-lg-4">
+                            <div class="card h-100 project-card">
+                                ${formData.image_url ? `<img src="${formData.image_url}" class="card-img-top" alt="${formData.title}">` : ''}
+                                <div class="card-body">
+                                    <h5 class="card-title">${formData.title}</h5>
+                                    <p class="card-text text-muted">${formData.description}</p>
+                                    ${formData.project_url ? `
+                                    <a href="${formData.project_url}" class="btn btn-outline-primary btn-sm" target="_blank">
+                                        <i class="fas fa-external-link-alt me-2"></i>{{ _('View Project') }}
+                                    </a>` : ''}
+                                </div>
+                                <div class="card-footer bg-transparent">
+                                    <small class="text-muted">${formData.date}</small>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    portfolioItems.insertAdjacentHTML('afterbegin', newItem);
+                    
+                    // Reset form and close modal
+                    portfolioForm.reset();
+                    bootstrap.Modal.getInstance(document.getElementById('addPortfolioModal')).hide();
+                    showToast("{{ _('Portfolio item added successfully') }}", 'success');
+                } else {
+                    throw new Error('Failed to add portfolio item');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast("{{ _('Failed to add portfolio item') }}", 'error');
+            }
+        });
+    }
+
+    const addSkillBtn = document.getElementById('addSkillBtn');
+    const skillsList = document.querySelector('.skills-list');
+    const saveSkillsBtn = document.getElementById('saveSkills');
+
+    function createSkillItem() {
+        return `
+            <div class="skill-item mb-3">
+                <input type="text" class="form-control skill-name" placeholder="Skill name">
+                <div class="row mt-2">
+                    <div class="col">
+                        <input type="range" class="form-range proficiency" min="1" max="5" value="3">
+                        <small class="text-muted">Proficiency (1-5)</small>
+                    </div>
+                    <div class="col">
+                        <input type="number" class="form-control years" value="1" step="0.5" min="0">
+                        <small class="text-muted">Years</small>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    addSkillBtn.addEventListener('click', () => {
+        skillsList.insertAdjacentHTML('beforeend', createSkillItem());
+    });
+
+    saveSkillsBtn.addEventListener('click', async () => {
+        const skills = [];
+        document.querySelectorAll('.skill-item').forEach(item => {
+            const name = item.querySelector('.skill-name').value.trim();
+            if (name) {
+                skills.push({
+                    name: name,
+                    proficiency_level: parseInt(item.querySelector('.proficiency').value),
+                    years_experience: parseFloat(item.querySelector('.years').value)
+                });
+            }
+        });
+
+        try {
+            const response = await fetch("{{ url_for('portfolio.update_skills') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({ skills: skills })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                csrfToken = data.csrf_token;
+                window.location.reload();
+            } else {
+                alert('Failed to update skills. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,324 @@
+{% extends "base.html" %}
+{% block title %}Support Our Mission{% endblock %}
+
+{% block head %}
+{{ super() }}
+<style>
+    .donation-container {
+        background: linear-gradient(135deg, #f6f8f9 0%, #e5ebee 100%);
+        border-radius: 15px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        max-width: 600px;
+        margin: 2rem auto;
+        transition: all 0.3s ease;
+    }
+
+    .donation-container:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    }
+
+    .donation-header {
+        color: #2c3e50;
+        text-align: center;
+        margin-bottom: 2rem;
+        font-weight: 600;
+    }
+
+    .donation-reasons {
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .donation-reasons ul {
+        list-style-type: none;
+        padding-left: 0;
+    }
+
+    .donation-reasons li {
+        position: relative;
+        padding-left: 30px;
+        margin-bottom: 10px;
+        color: #34495e;
+    }
+
+    .donation-reasons li::before {
+        content: '✓';
+        position: absolute;
+        left: 0;
+        color: #2ecc71;
+        font-weight: bold;
+    }
+
+    .donation-form .form-label {
+        font-weight: 500;
+        color: #2c3e50;
+    }
+
+    .donation-form .input-group-text {
+        background-color: #3498db;
+        color: white;
+        border: none;
+    }
+
+    .donation-submit {
+        background-color: #2ecc71;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .donation-submit:hover {
+        background-color: #27ae60;
+        transform: scale(1.05);
+    }
+
+    .recent-donations {
+        background-color: rgba(255, 255, 255, 0.7);
+        border-radius: 10px;
+        padding: 1rem;
+    }
+
+    .recent-donations .donation-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        padding: 0.5rem;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+    }
+
+    .recent-donations .donation-item:hover {
+        background-color: rgba(46, 204, 113, 0.1);
+    }
+
+    .recent-donations .donation-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-right: 1rem;
+        background-color: #3498db;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+    }
+
+    .recent-donations .donation-details {
+        flex-grow: 1;
+    }
+
+    .recent-donations .donation-amount {
+        font-weight: 600;
+        color: #2ecc71;
+    }
+
+    @media (max-width: 768px) {
+        .donation-container {
+            padding: 1rem;
+            margin: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container donation-container">
+    <h1 class="donation-header">Support Our Mission</h1>
+    
+    <div class="donation-reasons mb-4">
+        <h4>Why Support Us?</h4>
+        <p>We are committed to connecting skilled professionals with those who need their services. Your donation helps us:</p>
+        <ul>
+            <li>Maintain and improve our platform</li>
+            <li>Support underprivileged workers</li>
+            <li>Expand our reach to more communities</li>
+            <li>Enhance security and user protection</li>
+        </ul>
+    </div>
+
+    <form id="donationForm" class="donation-form needs-validation" method="POST" action="{{ url_for('create_donation') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        
+        <div class="mb-3">
+            <label for="amount" class="form-label">Donation Amount (INR)*</label>
+            <div class="input-group">
+                <span class="input-group-text">₹</span>
+                <input type="number" class="form-control" id="amount" name="amount" min="10" required placeholder="Enter amount">
+            </div>
+            <small class="form-text text-muted">Minimum donation is ₹10</small>
+        </div>
+
+        {% if not current_user.is_authenticated %}
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="name" class="form-label">Your Name</label>
+                <input type="text" class="form-control" id="name" name="name" placeholder="Enter your name">
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label for="email" class="form-label">Email Address</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email">
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="mb-3">
+            <label for="message" class="form-label">Message (Optional)</label>
+            <textarea class="form-control" id="message" name="message" rows="3" placeholder="Share your thoughts or motivation"></textarea>
+        </div>
+
+        <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="anonymous" name="anonymous">
+            <label class="form-check-label" for="anonymous">Make this donation anonymous</label>
+        </div>
+
+        <div class="text-center">
+            <button type="submit" class="btn btn-lg donation-submit w-100">
+                <i class="fas fa-heart me-2"></i>Donate Now
+            </button>
+        </div>
+    </form>
+
+    <div class="mt-4 text-center">
+        <p class="text-muted small">
+            <i class="fas fa-shield-alt me-2"></i>Your donation is secure and tax-deductible
+        </p>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h4 class="card-title mb-3"><i class="fas fa-users me-2"></i>Recent Supporters</h4>
+            <div id="recentDonations" class="recent-donations">
+                <!-- Will be populated via JavaScript -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Payment processing modal -->
+<div class="modal fade" id="paymentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Complete Your Donation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="razorpay-button"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+document.getElementById('donationForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const amount = document.getElementById('amount').value;
+    if (!amount || amount < 10) {
+        alert('Please enter a valid amount (minimum ₹10)');
+        return;
+    }
+    
+    const formData = new FormData(this);
+    try {
+        const response = await fetch('{{ url_for("create_donation") }}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('input[name=csrf_token]').value
+            },
+            body: formData,
+            credentials: 'same-origin'
+        });
+        
+        const data = await response.json();
+        if (data.order_id) {
+            const options = {
+                key: '{{ razorpay_key_id }}',
+                amount: data.amount,
+                currency: 'INR',
+                name: 'Fuetime',
+                description: 'Donation',
+                order_id: data.order_id,
+                handler: function(response) {
+                    window.location.href = `/verify-donation?order_id=${data.order_id}&payment_id=${response.razorpay_payment_id}&signature=${response.razorpay_signature}`;
+                },
+                prefill: {
+                    name: document.getElementById('name')?.value || '',
+                    email: document.getElementById('email')?.value || ''
+                },
+                theme: {
+                    color: '#3B82F6'
+                }
+            };
+            
+            const rzp = new Razorpay(options);
+            rzp.open();
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+    }
+});
+
+// Load recent donations
+async function loadRecentDonations() {
+    try {
+        const response = await fetch('/get_recent_donations');
+        const donations = await response.json();
+        const donationsContainer = document.getElementById('recentDonations');
+        donationsContainer.innerHTML = '';
+
+        if (donations.length === 0) {
+            donationsContainer.innerHTML = `
+                <div class="text-center text-muted py-3">
+                    <i class="fas fa-hand-holding-heart me-2"></i>
+                    Be the first to support our mission!
+                </div>
+            `;
+            return;
+        }
+
+        donations.forEach(donation => {
+            const donationElement = document.createElement('div');
+            donationElement.classList.add('donation-item');
+            
+            // Create avatar with first letter of name or anonymous
+            const avatarText = donation.is_anonymous ? '🤫' : donation.name[0].toUpperCase();
+            
+            donationElement.innerHTML = `
+                <div class="donation-avatar">${avatarText}</div>
+                <div class="donation-details">
+                    <div class="donation-name">
+                        ${donation.is_anonymous ? 'Anonymous Donor' : donation.name}
+                    </div>
+                    <small class="text-muted">${donation.timestamp}</small>
+                </div>
+                <div class="donation-amount">₹${donation.amount.toLocaleString()}</div>
+            `;
+            donationsContainer.appendChild(donationElement);
+        });
+    } catch (error) {
+        console.error('Error loading donations:', error);
+        const donationsContainer = document.getElementById('recentDonations');
+        donationsContainer.innerHTML = `
+            <div class="text-center text-danger py-3">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Unable to load recent donations. Please try again later.
+            </div>
+        `;
+    }
+}
+
+loadRecentDonations();
+</script>
+{% endblock %}

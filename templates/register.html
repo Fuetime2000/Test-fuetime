@@ -1,0 +1,516 @@
+{% extends "base.html" %}
+
+{% block title %}Register - FueTime{% endblock %}
+
+{% block content %}
+<!-- Include translations file -->
+<script src="{{ url_for('static', filename='js/register_translations.js') }}"></script>
+<div class="container-fluid register-page py-5">
+    <div class="row justify-content-center align-items-center">
+        <div class="col-12 col-md-10 col-lg-8 col-xl-6">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <div class="card-header bg-primary text-center py-4">
+                    <div class="d-flex justify-content-end mb-2">
+                        <button type="button" class="btn btn-outline-light btn-sm" id="toggleLanguage">
+                            <i class="fas fa-language"></i> हिंदी में देखें
+                        </button>
+                    </div>
+                    <h2 class="display-6 mb-0 fw-bold text-light">Create Your Professional Profile</h2>
+                    <p class="text-light-emphasis mb-0 mt-2">Join our community and showcase your skills</p>
+                </div>
+                {% if error %}
+                <div class="alert alert-danger m-3" role="alert">
+                    {{ error }}
+                </div>
+                {% endif %}
+                <div class="card-body p-4 p-md-5 bg-light">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    
+                    <form method="POST" action="{{ url_for('register') }}" id="registrationForm" enctype="multipart/form-data" novalidate class="needs-validation">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        
+                        <div class="row g-3 gy-4">
+                            <div class="col-12">
+                                <div class="alert alert-info mb-4">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    You're registering as a user. 
+                                    <a href="{{ url_for('register_client') }}" class="alert-link">Click here</a> to register as a business client instead.
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-floating mb-3 position-relative">
+                                    <input type="text" class="form-control" id="full_name" name="full_name" 
+                                           required minlength="3" maxlength="100"
+                                           pattern="[A-Za-z .]+" placeholder="John Doe"
+                                           value="{{ form_data.get('full_name', '') }}">
+                                    <label for="full_name" data-translate="full_name">Full Name</label>
+                                    <div class="invalid-feedback position-absolute start-0 bottom-100 pb-2" data-translate="full_name">
+                                        Please enter your full name (only letters, spaces, and dots allowed)
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 worker-field" id="dateOfBirthField">
+                                <div class="form-floating mb-3 position-relative">
+                                    <input type="date" class="form-control" id="date_of_birth" name="date_of_birth" 
+                                           value="{{ form_data.get('date_of_birth', '') }}"
+                                           max="{{ current_date }}">
+                                    <label for="date_of_birth" data-translate="date_of_birth">Date of Birth *</label>
+                                    <div class="invalid-feedback position-absolute start-0 bottom-100 pb-2" data-translate="date_of_birth">
+                                        Please enter your date of birth (must be at least 18 years old)
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3 position-relative">
+                                    <input type="email" class="form-control" id="email" name="email" 
+                                           required placeholder="name@example.com"
+                                           value="{{ form_data.get('email', '') }}">
+                                    <label for="email" data-translate="email">Email Address</label>
+                                    <div class="invalid-feedback position-absolute start-0 bottom-100 pb-2" data-translate="email">
+                                        Please enter a valid email address
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3 position-relative">
+                                    <input type="tel" class="form-control" id="phone" name="phone" 
+                                           required pattern="[0-9]{10}" maxlength="10"
+                                           placeholder="1234567890"
+                                           value="{{ form_data.get('phone', '') }}">
+                                    <label for="phone" data-translate="phone">Phone Number</label>
+                                    <div class="invalid-feedback position-absolute start-0 bottom-100 pb-2" data-translate="phone">
+                                        Please enter a valid 10-digit phone number
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 worker-field">
+                                <div class="form-floating mb-3 position-relative">
+                                    <input type="text" class="form-control" id="work" name="work" 
+                                           maxlength="100"
+                                           placeholder="Your profession"
+                                           value="{{ form_data.get('work', '') }}">
+                                    <label for="work" data-translate="work">Work/Profession</label>
+                                    <div class="invalid-feedback position-absolute start-0 bottom-100 pb-2" data-translate="work">
+                                        Please enter your work/profession
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 worker-field">
+                                <div class="form-floating mb-3 position-relative">
+                                    <select class="form-select" id="experience" name="experience">
+                                        <option value="" {% if not form_data.get('experience') %}selected{% endif %} data-translate="select_experience">Select experience</option>
+                                        <option value="fresher" {% if form_data.get('experience') == 'fresher' %}selected{% endif %} data-translate="fresher">Fresher</option>
+                                        <option value="0-1" {% if form_data.get('experience') == '0-1' %}selected{% endif %} data-translate="years_0_1">0-1 years</option>
+                                        <option value="1-3" {% if form_data.get('experience') == '1-3' %}selected{% endif %} data-translate="years_1_3">1-3 years</option>
+                                        <option value="3-5" {% if form_data.get('experience') == '3-5' %}selected{% endif %} data-translate="years_3_5">3-5 years</option>
+                                        <option value="5-10" {% if form_data.get('experience') == '5-10' %}selected{% endif %} data-translate="years_5_10">5-10 years</option>
+                                        <option value="10+" {% if form_data.get('experience') == '10+' %}selected{% endif %}>10+ years</option>
+                                    </select>
+                                    <label for="experience" data-translate="experience">Experience</label>
+                                    <div class="invalid-feedback position-absolute start-0 bottom-100 pb-2" data-translate="experience">
+                                        Please select your experience
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 worker-field">
+                                <div class="form-floating mb-3 position-relative">
+                                    <input type="text" class="form-control" id="education" name="education" 
+                                           maxlength="200"
+                                           placeholder="Your education"
+                                           value="{{ form_data.get('education', '') }}">
+                                    <label for="education" data-translate="education">Education</label>
+                                    <div class="invalid-feedback position-absolute start-0 bottom-100 pb-2" data-translate="education">
+                                        Please enter your education details
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 worker-field">
+                                <div class="form-floating mb-3 position-relative">
+                                    <input type="text" class="form-control" id="work_experience" name="work_experience" 
+                                           maxlength="200"
+                                           placeholder="Companies worked at"
+                                           value="{{ form_data.get('work_experience', '') }}">
+                                    <label for="work_experience" data-translate="work_experience">Work Experience (Companies)</label>
+                                    <div class="form-text">List companies you've worked at (comma-separated)</div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="form-floating mb-3 position-relative">
+                                    <input type="text" class="form-control" id="live_location" name="live_location" 
+                                           required
+                                           maxlength="200"
+                                           placeholder="Your permanent address"
+                                           value="{{ form_data.get('live_location', '') }}">
+                                    <label for="live_location" data-translate="live_location">Residential Area</label>
+                                    <div class="invalid-feedback position-absolute start-0 bottom-100 pb-2" data-translate="live_location">
+                                        Please enter your residential area
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="mb-3 position-relative">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control text-center" id="current_location" name="current_location" 
+                                               required readonly style="text-align: center;"
+                                               placeholder="Click 'Get Location' to set your location"
+                                               value="{{ form_data.get('current_location', '') }}">
+                                        <button class="btn btn-primary" type="button" id="getLocationBtn">
+                                            <i class="fas fa-map-marker-alt"></i> Get Location
+                                        </button>
+                                    </div>
+                                    <div class="invalid-feedback position-absolute start-0 bottom-100 pb-2" data-translate="current_location">
+                                        Please get your current location
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 worker-field">
+                                <div class="form-floating mb-3 position-relative">
+                                    <input type="text" class="form-control optional" id="skills" name="skills" 
+                                           placeholder="Your skills (comma-separated)"
+                                           value="{{ form_data.get('skills', '') }}">
+                                    <label for="skills">Skills (comma-separated)</label>
+                                    <div class="form-text">Enter your skills separated by commas (e.g., Web Development, Python, Marketing)</div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 worker-field">
+                                <div class="form-floating mb-3 position-relative">
+                                    <select class="form-select" id="payment_type" name="payment_type" required>
+                                        <option value="" {% if not form_data.get('payment_type') %}selected{% endif %} data-translate="select_payment">Select payment type</option>
+                                        <option value="Hours" {% if form_data.get('payment_type') == 'Hours' %}selected{% endif %} data-translate="Hours">Hours</option>
+                                        <option value="Month" {% if form_data.get('payment_type') == 'Month' %}selected{% endif %} data-translate="Month">Month</option>
+                                        <option value="Daily" {% if form_data.get('payment_type') == 'Daily' %}selected{% endif %} data-translate="Daily">Daily</option>
+                                    </select>
+                                    <label for="payment_type" data-translate="payment_type">Payment Type</label>
+                                    <div class="invalid-feedback position-absolute start-0 bottom-100 pb-2" data-translate="payment_type">
+                                        Please select payment type
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3 position-relative">
+                                    <input type="number" class="form-control" id="payment_charge" name="payment_charge"
+                                           required min="0" step="0.01"
+                                           placeholder="Enter your charge"
+                                           value="{{ form_data.get('payment_charge', '') }}">
+                                    <label for="payment_charge" data-translate="payment_charge">Payment Charge (₹)</label>
+                                    <div class="invalid-feedback position-absolute start-0 bottom-100 pb-2" data-translate="payment_charge">
+                                        Please enter your payment charge
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3 position-relative">
+                                    <input type="password" class="form-control" id="password" name="password"
+                                           required minlength="8"
+                                           placeholder="Choose password">
+                                    <label for="password">Password</label>
+                                    <div class="invalid-feedback position-absolute start-0 bottom-100 pb-2">
+                                        Password must be at least 8 characters long
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3 position-relative">
+                                    <input type="password" class="form-control" id="confirm_password" name="confirm_password"
+                                           required minlength="8"
+                                           placeholder="Confirm password">
+                                    <label for="confirm_password">Confirm Password</label>
+                                    <div class="invalid-feedback position-absolute start-0 bottom-100 pb-2">
+                                        Passwords must match
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label for="photo" class="form-label">Profile Picture <span class="text-danger">*</span></label>
+                                    <input type="file" class="form-control" id="photo" name="photo"
+                                           accept="image/*" required>
+                                    <div class="invalid-feedback position-absolute start-0 bottom-100 pb-2">
+                                        Please upload a profile picture
+                                    </div>
+                                    <div class="invalid-feedback position-absolute start-0 bottom-100 pb-2">
+                                        Please select a valid image file
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-gradient-primary w-100 py-3 fs-5 fw-bold shadow-lg">
+                                <i class="fas fa-user-plus me-2"></i>Create My Profile
+                            </button>
+                            <div class="login-link text-center mt-4">
+                                <p class="mb-2">
+                                    Already have an account? 
+                                    <a href="{{ url_for('login') }}" class="text-decoration-none fw-bold">Login here</a>
+                                </p>
+                                <p class="mb-0">
+                                    Registering as a business client? 
+                                    <a href="{{ url_for('register_client') }}" class="text-decoration-none fw-bold">Click here</a>
+                                </p>
+                            </div>
+                        </div>
+                    </form>
+                    
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Language toggle functionality
+let currentLang = 'en';
+const toggleBtn = document.getElementById('toggleLanguage');
+
+function updateFormLanguage(lang) {
+    const elements = document.querySelectorAll('[data-translate]');
+    elements.forEach(el => {
+        const key = el.getAttribute('data-translate');
+        if (el.tagName === 'LABEL' || el.tagName === 'OPTION') {
+            el.textContent = translations[lang][key];
+        } else if (el.classList.contains('invalid-feedback')) {
+            el.textContent = translations[lang]['validation_' + key];
+        }
+    });
+
+    // Update button text
+    toggleBtn.innerHTML = `<i class="fas fa-language"></i> ${lang === 'en' ? 'हिंदी में देखें' : 'View in English'}`;
+
+    // Update Get Location button text
+    const getLocationBtn = document.getElementById('getLocationBtn');
+    getLocationBtn.innerHTML = `<i class="fas fa-map-marker-alt"></i> ${translations[lang]['get_location']}`;
+
+    // Update submit button text
+    const submitBtn = document.querySelector('button[type="submit"]');
+    submitBtn.innerHTML = `<i class="fas fa-user-plus me-2"></i>${translations[lang]['create_profile']}`;
+}
+
+toggleBtn.addEventListener('click', function() {
+    currentLang = currentLang === 'en' ? 'hi' : 'en';
+    updateFormLanguage(currentLang);
+});
+
+// Handle user type selection
+function toggleUserFields() {
+    const userType = document.querySelector('input[name="user_type"]:checked').value;
+    const workerFields = document.querySelectorAll('.worker-field');
+    
+    workerFields.forEach(field => {
+        if (userType === 'client') {
+            // Hide and disable worker fields for clients
+            field.classList.add('d-none');
+            const inputs = field.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                input.required = false;
+                if (input.type !== 'file') {
+                    input.value = '';
+                }
+            });
+        } else {
+            // Show and enable worker fields for workers
+            field.classList.remove('d-none');
+            const inputs = field.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                if (!input.classList.contains('optional')) {
+                    input.required = true;
+                }
+            });
+        }
+    });
+
+    // Update form validation
+    const form = document.getElementById('registrationForm');
+    if (form) {
+        form.classList.remove('was-validated');
+    }
+}
+
+// Initialize form fields based on default selection
+document.addEventListener('DOMContentLoaded', function() {
+    // Set max date for date of birth (18 years ago)
+    const today = new Date();
+    const maxDate = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+    document.getElementById('date_of_birth').max = maxDate.toISOString().split('T')[0];
+    
+    // Initialize user type fields
+    toggleUserFields();
+    
+    // Add event listeners for user type radio buttons
+    document.querySelectorAll('input[name="user_type"]').forEach(radio => {
+        radio.addEventListener('change', toggleUserFields);
+    });
+});
+
+// Initialize fields on page load
+document.addEventListener('DOMContentLoaded', toggleUserFields);
+
+// Form validation
+document.getElementById('registrationForm').addEventListener('submit', function(event) {
+    if (!this.checkValidity()) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+    
+    // Check if passwords match
+    const password = document.getElementById('password');
+    const confirmPassword = document.getElementById('confirm_password');
+    
+    if (password.value !== confirmPassword.value) {
+        confirmPassword.setCustomValidity("Passwords don't match");
+    } else {
+        confirmPassword.setCustomValidity('');
+    }
+    
+    this.classList.add('was-validated');
+});
+
+// Reset custom validity when password fields change
+document.getElementById('password').addEventListener('input', function() {
+    document.getElementById('confirm_password').setCustomValidity('');
+});
+document.getElementById('confirm_password').addEventListener('input', function() {
+    if (this.value !== document.getElementById('password').value) {
+        this.setCustomValidity("Passwords don't match");
+    } else {
+        this.setCustomValidity('');
+    }
+});
+
+// Preview profile picture
+document.getElementById('photo').addEventListener('change', function(e) {
+    if (this.files && this.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // You can add preview functionality here if needed
+        };
+        reader.readAsDataURL(this.files[0]);
+    }
+});
+
+// Get current location functionality
+document.getElementById('getLocationBtn').addEventListener('click', function() {
+    if (!navigator.geolocation) {
+        alert('Geolocation is not supported by your browser');
+        return;
+    }
+
+    this.disabled = true;
+    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Getting Location...';
+
+    navigator.geolocation.getCurrentPosition(
+        function(position) {
+            // Use reverse geocoding to get address from coordinates
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.coords.latitude}&lon=${position.coords.longitude}`)
+                .then(response => response.json())
+                .then(data => {
+                    const locationInput = document.getElementById('current_location');
+                    const address = data.display_name;
+                    locationInput.value = address;
+                    document.getElementById('getLocationBtn').innerHTML = '<i class="fas fa-map-marker-alt"></i> Update Location';
+                    document.getElementById('getLocationBtn').disabled = false;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Could not get address from coordinates. Please try again.');
+                    document.getElementById('getLocationBtn').innerHTML = '<i class="fas fa-map-marker-alt"></i> Get Location';
+                    document.getElementById('getLocationBtn').disabled = false;
+                });
+        },
+        function(error) {
+            let message = 'An error occurred while getting your location.';
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    message = 'Location permission denied. Please enable location access in your browser settings.';
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    message = 'Location information is unavailable.';
+                    break;
+                case error.TIMEOUT:
+                    message = 'Location request timed out.';
+                    break;
+            }
+            alert(message);
+            document.getElementById('getLocationBtn').innerHTML = '<i class="fas fa-map-marker-alt"></i> Get Location';
+            document.getElementById('getLocationBtn').disabled = false;
+        }
+    );
+});
+document.getElementById('getLocationBtn').addEventListener('click', function() {
+    if ("geolocation" in navigator) {
+        this.disabled = true;
+        this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Getting location...';
+        
+        navigator.geolocation.getCurrentPosition(function(position) {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+            
+            // Use OpenStreetMap Nominatim for reverse geocoding (free and open-source)
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`)
+                .then(response => response.json())
+                .then(data => {
+                    const address = data.display_name;
+                    document.getElementById('current_location').value = address;
+                    document.getElementById('getLocationBtn').innerHTML = '<i class="fas fa-map-marker-alt"></i> Location Updated';
+                    document.getElementById('getLocationBtn').classList.remove('btn-outline-primary');
+                    document.getElementById('getLocationBtn').classList.add('btn-success');
+                })
+                .catch(error => {
+                    console.error('Error getting address:', error);
+                    document.getElementById('getLocationBtn').innerHTML = '<i class="fas fa-map-marker-alt"></i> Try Again';
+                    document.getElementById('getLocationBtn').disabled = false;
+                });
+        }, function(error) {
+            console.error('Error getting location:', error);
+            document.getElementById('getLocationBtn').innerHTML = '<i class="fas fa-map-marker-alt"></i> Try Again';
+            document.getElementById('getLocationBtn').disabled = false;
+            
+            // Show error message based on the error code
+            let errorMessage = 'Error getting your location. ';
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    errorMessage += 'Please enable location access in your browser settings.';
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    errorMessage += 'Location information is unavailable.';
+                    break;
+                case error.TIMEOUT:
+                    errorMessage += 'Location request timed out.';
+                    break;
+                default:
+                    errorMessage += 'An unknown error occurred.';
+            }
+            alert(errorMessage);
+        });
+    } else {
+        alert("Geolocation is not supported by your browser");
+    }
+});
+</script>
+{% endblock %}

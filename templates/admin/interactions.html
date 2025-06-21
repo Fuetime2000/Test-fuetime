@@ -1,0 +1,470 @@
+{% extends "admin/base.html" %}
+
+{% block extra_css %}
+<style>
+    /* Card Styles */
+    .stat-card {
+        border-radius: 20px;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        border: none;
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        overflow: hidden;
+    }
+    .stat-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    }
+    .stat-card .card-body {
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 2rem;
+    }
+    
+    .icon-circle {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    
+    .icon-primary {
+        background-color: rgba(78, 115, 223, 0.1);
+        color: #4e73df;
+    }
+    
+    .icon-success {
+        background-color: rgba(40, 167, 69, 0.1);
+        color: #28a745;
+    }
+    
+    .icon-info {
+        background-color: rgba(23, 162, 184, 0.1);
+        color: #17a2b8;
+    }
+    .stat-info {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        flex: 1;
+    }
+    .stat-info-text {
+        flex: 1;
+    }
+    .stat-card .interaction-count {
+        min-width: 80px;
+        text-align: right;
+    }
+    
+    /* Stats Counter */
+    .interaction-count {
+        font-size: 2.5em;
+        font-weight: 700;
+        background: linear-gradient(45deg, #4e73df, #224abe);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin: 1rem 0;
+    }
+    
+    /* Navigation Tabs */
+    .nav-tabs {
+        border: none;
+        margin: 0 -1.5rem 1.5rem;
+        gap: 0.5rem;
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+        padding: 0 1.5rem;
+    }
+    .nav-tabs::-webkit-scrollbar {
+        display: none;
+    }
+    .nav-tabs .nav-link {
+        border-radius: 15px;
+        padding: 1rem 1.5rem;
+        font-weight: 600;
+        color: #6c757d;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .nav-tabs .nav-link.active {
+        color: #fff;
+        background: linear-gradient(45deg, #4e73df, #224abe);
+        border: none;
+        box-shadow: 0 4px 15px rgba(78, 115, 223, 0.3);
+    }
+    .nav-tabs .nav-link:hover:not(.active) {
+        background-color: #f8f9fa;
+        border-color: #4e73df;
+        color: #4e73df;
+    }
+    
+    /* Table Styles */
+    .table-container {
+        border-radius: 20px;
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        background: white;
+    }
+    .table {
+        margin-bottom: 0;
+    }
+    .table thead th {
+        background: linear-gradient(45deg, #4e73df, #224abe);
+        color: white;
+        border: none;
+        padding: 1.2rem 1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+        letter-spacing: 0.5px;
+    }
+    .table tbody tr {
+        transition: all 0.3s ease;
+    }
+    .table tbody tr:hover {
+        background-color: #f8f9fa;
+        transform: scale(1.01);
+    }
+    .table td {
+        padding: 1rem;
+        vertical-align: middle;
+        white-space: nowrap;
+    }
+    .table td:last-child {
+        text-align: right;
+    }
+    .table-container {
+        margin: 0 -1.5rem;
+    }
+    .card-body {
+        padding: 1.5rem;
+    }
+    
+    /* Badge Styles */
+    .badge {
+        padding: 0.6rem 1rem;
+        border-radius: 30px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    .badge:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* User Link Styles */
+    .user-link {
+        color: #4e73df;
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+    }
+    .user-link:hover {
+        color: #224abe;
+        transform: translateX(5px);
+    }
+    .user-link img {
+        border: 2px solid #fff;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    .user-link:hover img {
+        transform: scale(1.1);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Timestamp Styles */
+    .timestamp {
+        color: #6c757d;
+        font-size: 0.9em;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        white-space: nowrap;
+    }
+    .timestamp i {
+        color: #4e73df;
+    }
+    
+    /* Animation Classes */
+    .fade-in {
+        animation: fadeIn 0.5s ease-in-out;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4 fade-in">
+    <h2 class="mb-4 d-flex align-items-center">
+        <span class="bg-gradient-primary p-3 rounded-circle me-3 text-white">
+            <i class="fas fa-chart-line"></i>
+        </span>
+        <span>User Interactions Dashboard</span>
+    </h2>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="stat-info">
+                        <div class="icon-circle icon-primary p-3 rounded-circle">
+                            <i class="fas fa-eye fa-2x"></i>
+                        </div>
+                        <div class="stat-info-text">
+                            <h5 class="card-title mb-1">Profile Views</h5>
+                            <p class="card-text mb-0">Total profile visits</p>
+                        </div>
+                    </div>
+                    <div class="interaction-count">{{ stats.profile_views|length }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="stat-info">
+                        <div class="icon-circle icon-success p-3 rounded-circle">
+                            <i class="fas fa-comments fa-2x"></i>
+                        </div>
+                        <div class="stat-info-text">
+                            <h5 class="card-title mb-1">Messages</h5>
+                            <p class="card-text mb-0">Total messages exchanged</p>
+                        </div>
+                    </div>
+                    <div class="interaction-count">{{ stats.messages|length }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="stat-info">
+                        <div class="icon-circle icon-info p-3 rounded-circle">
+                            <i class="fas fa-phone fa-2x"></i>
+                        </div>
+                        <div class="stat-info-text">
+                            <h5 class="card-title mb-1">Calls</h5>
+                            <p class="card-text mb-0">Total calls made</p>
+                        </div>
+                    </div>
+                    <div class="interaction-count">{{ stats.calls|length }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <ul class="nav nav-tabs" id="interactionTabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="profile-views-tab" data-bs-toggle="tab" href="#profile-views" role="tab">
+                        Profile Views <span class="badge bg-primary">{{ stats.profile_views|length }}</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="messages-tab" data-bs-toggle="tab" href="#messages" role="tab">
+                        Messages <span class="badge bg-primary">{{ stats.messages|length }}</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="calls-tab" data-bs-toggle="tab" href="#calls" role="tab">
+                        Calls <span class="badge bg-primary">{{ stats.calls|length }}</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <div class="tab-content mt-3" id="interactionTabsContent">
+                <!-- Profile Views -->
+                <div class="tab-pane fade show active" id="profile-views" role="tabpanel">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <div class="table-container">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th><i class="fas fa-user me-2"></i>Viewer</th>
+                                            <th><i class="fas fa-eye me-2"></i>Viewed Profile</th>
+                                            <th><i class="fas fa-clock me-2"></i>Timestamp</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for view in stats.profile_views %}
+                                        <tr>
+                                            <td>
+                                                <a href="{{ url_for('profile', user_id=view.viewer.id) }}" class="user-link">
+                                                    <img src="{{ url_for('static', filename=view.viewer.photo) if view.viewer.photo else url_for('static', filename='img/default-avatar.svg') }}" 
+                                                         class="rounded-circle me-2" width="30" height="30">
+                                                    {{ view.viewer.full_name }}
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <a href="{{ url_for('profile', user_id=view.viewed.id) }}" class="user-link">
+                                                    <img src="{{ url_for('static', filename=view.viewed.photo) if view.viewed.photo else url_for('static', filename='img/default-avatar.svg') }}" 
+                                                         class="rounded-circle me-2" width="30" height="30">
+                                                    {{ view.viewed.full_name }}
+                                                </a>
+                                            </td>
+                                            <td class="timestamp">
+                                                <i class="far fa-clock me-1"></i>
+                                                {{ view.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Messages -->
+                <div class="tab-pane fade" id="messages" role="tabpanel">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <div class="table-container">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th><i class="fas fa-paper-plane me-2"></i>From</th>
+                                            <th><i class="fas fa-user me-2"></i>To</th>
+                                            <th><i class="fas fa-clock me-2"></i>Timestamp</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for msg in stats.messages %}
+                                        <tr>
+                                            <td>
+                                                <a href="{{ url_for('profile', user_id=msg.sender.id) }}" class="user-link">
+                                                    <img src="{{ url_for('static', filename=msg.sender.photo) if msg.sender.photo else url_for('static', filename='img/default-avatar.svg') }}" 
+                                                         class="rounded-circle me-2" width="30" height="30">
+                                                    {{ msg.sender.full_name }}
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <a href="{{ url_for('profile', user_id=msg.recipient.id) }}" class="user-link">
+                                                    <img src="{{ url_for('static', filename=msg.recipient.photo) if msg.recipient.photo else url_for('static', filename='img/default-avatar.svg') }}" 
+                                                         class="rounded-circle me-2" width="30" height="30">
+                                                    {{ msg.recipient.full_name }}
+                                                </a>
+                                            </td>
+                                            <td class="timestamp">
+                                                <i class="far fa-clock me-1"></i>
+                                                {{ msg.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Calls -->
+                <div class="tab-pane fade" id="calls" role="tabpanel">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <div class="table-container">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th><i class="fas fa-phone me-2"></i>Caller</th>
+                                            <th><i class="fas fa-user me-2"></i>Recipient</th>
+                                            <th><i class="fas fa-clock me-2"></i>Timestamp</th>
+                                            <th><i class="fas fa-hourglass-end me-2"></i>Duration</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for call in stats.calls %}
+                                        <tr>
+                                            <td>
+                                                <a href="{{ url_for('profile', user_id=call.caller.id) }}" class="user-link">
+                                                    <img src="{{ url_for('static', filename=call.caller.photo) if call.caller.photo else url_for('static', filename='img/default-avatar.svg') }}" 
+                                                         class="rounded-circle me-2" width="30" height="30">
+                                                    {{ call.caller.full_name }}
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <a href="{{ url_for('profile', user_id=call.recipient.id) }}" class="user-link">
+                                                    <img src="{{ url_for('static', filename=call.recipient.photo) if call.recipient.photo else url_for('static', filename='img/default-avatar.svg') }}" 
+                                                         class="rounded-circle me-2" width="30" height="30">
+                                                    {{ call.recipient.full_name }}
+                                                </a>
+                                            </td>
+                                            <td class="timestamp">
+                                                <i class="far fa-clock me-1"></i>
+                                                {{ call.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
+                                            </td>
+                                            <td>
+                                                <i class="fas fa-hourglass-end me-1"></i>
+                                                {{ call.duration }} minutes
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                    <thead>
+                                        <tr>
+                                            <th><i class="fas fa-phone me-2"></i>Caller</th>
+                                            <th><i class="fas fa-user me-2"></i>Called</th>
+                                            <th><i class="fas fa-clock me-2"></i>Timestamp</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for call in stats.calls %}
+                                        <tr>
+                                            <td>
+                                                <a href="{{ url_for('profile', user_id=call.viewer.id) }}" class="user-link">
+                                                    <img src="{{ url_for('static', filename=call.viewer.photo) if call.viewer.photo else url_for('static', filename='img/default-avatar.svg') }}" 
+                                                         class="rounded-circle me-2" width="30" height="30">
+                                                    {{ call.viewer.full_name }}
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <a href="{{ url_for('profile', user_id=call.viewed.id) }}" class="user-link">
+                                                    <img src="{{ url_for('static', filename=call.viewed.photo) if call.viewed.photo else url_for('static', filename='img/default-avatar.svg') }}" 
+                                                         class="rounded-circle me-2" width="30" height="30">
+                                                    {{ call.viewed.full_name }}
+                                                </a>
+                                            </td>
+                                            <td class="timestamp">
+                                                <i class="far fa-clock me-1"></i>
+                                                {{ call.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

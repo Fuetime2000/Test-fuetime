@@ -1,0 +1,95 @@
+{% extends "admin/base.html" %}
+
+{% block admin_title %}{{ _('User Management') }}{% endblock %}
+
+{% block admin_content %}
+<div class="users-grid-container">
+    <div class="users-header mb-4">
+        <h4 class="users-title">{{ _('Users') }} <span class="text-muted">({{ users|length }})</span></h4>
+        <div class="users-search">
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                <input type="text" id="userSearch" class="form-control" placeholder="{{ _('Search users...') }}">
+            </div>
+        </div>
+    </div>
+
+    <div class="users-grid">
+        {% for user in users %}
+        <div class="user-card" data-user-id="{{ user.id }}" data-user-name="{{ user.full_name }}" data-user-email="{{ user.email }}">
+            <div class="user-card-header">
+                <div class="user-avatar">
+                    <img src="{{ url_for('static', filename='uploads/' + user.photo) if user.photo else url_for('static', filename='img/default-avatar.svg') }}" alt="{{ user.full_name }}" class="user-avatar-img">
+                    <span class="status-indicator status-{{ user.availability }}"></span>
+                </div>
+                <div class="user-info">
+                    <h5 class="user-name">{{ user.full_name }}</h5>
+                    <p class="user-email">{{ user.email }}</p>
+                </div>
+            </div>
+            <div class="user-card-body">
+                <div class="user-stats">
+                    <div class="stat">
+                        <i class="fas fa-star"></i>
+                        <span>{{ "%.1f"|format(user.average_rating) }}</span>
+                        <small>({{ user.total_reviews }})</small>
+                    </div>
+                    <div class="stat">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>{{ user.current_location or user.live_location or _('Not set') }}</span>
+                    </div>
+                    <div class="stat">
+                        <i class="fas fa-phone"></i>
+                        <span>{{ user.phone or _('Not set') }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="user-card-footer">
+                <div class="quick-actions">
+                    <a href="{{ url_for('admin_user_detail', username=user.username) }}" class="btn btn-primary btn-sm" title="{{ _('Edit User') }}">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <button class="btn btn-info btn-sm" onclick="sendMessage('{{ user.id }}')" title="{{ _('Message User') }}">
+                        <i class="fas fa-envelope"></i>
+                    </button>
+                    <button class="btn btn-warning btn-sm" onclick="toggleStatus('{{ user.id }}')" title="{{ _('Toggle Status') }}">
+                        <i class="fas fa-toggle-on"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Search functionality
+    $('#userSearch').on('keyup', function() {
+        const value = $(this).val().toLowerCase();
+        $('.user-card').filter(function() {
+            const userData = $(this).data('user-name').toLowerCase() + ' ' +
+                           $(this).data('user-email').toLowerCase();
+            $(this).toggle(userData.indexOf(value) > -1);
+        });
+    });
+
+    // Initialize tooltips
+    $('[data-bs-toggle="tooltip"]').tooltip();
+});
+
+// Send message to user
+function sendMessage(userId) {
+    // Implement message functionality
+    console.log('Send message to user:', userId);
+}
+
+// Toggle user status
+function toggleStatus(userId) {
+    // Implement status toggle functionality
+    console.log('Toggle status for user:', userId);
+}
+</script>
+{% endblock %}
+{% endblock %}

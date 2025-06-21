@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% block title %}{{ _('Search Results') }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">{{ _('Search Results') }}</h2>
+    
+    <!-- Search filters -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header">
+                    {{ _('Filters') }}
+                </div>
+                <div class="card-body">
+                    <form id="filterForm" action="{{ url_for('search') }}" method="get">
+                        <div class="mb-3">
+                            <label class="form-label">{{ _('Search') }}</label>
+                            <input type="text" class="form-control" name="query" value="{{ request.args.get('query', '') }}" placeholder="{{ _('Search by name, skills, or work') }}">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">{{ _('Location') }}</label>
+                            <select class="form-select" name="location">
+                                <option value="">{{ _('All Locations') }}</option>
+                                {% for location in locations %}
+                                <option value="{{ location }}" {% if location == request.args.get('location') %}selected{% endif %}>{{ location }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">{{ _('Skills') }}</label>
+                            <select class="form-select" name="category">
+                                <option value="">{{ _('All Skills') }}</option>
+                                {% for skill in skills %}
+                                <option value="{{ skill }}" {% if skill == request.args.get('category') %}selected{% endif %}>{{ skill }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">{{ _('Search') }}</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Search results -->
+        <div class="col-md-9">
+            <div class="row" id="searchResults">
+                {% if users %}
+                    {% for user in users %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ user.name }}</h5>
+                                <p class="card-text">
+                                    <i class="fas fa-map-marker-alt"></i> {{ user.location }}<br>
+                                    <i class="fas fa-tools"></i> {{ user.skills|join(', ') }}
+                                </p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <a href="{{ url_for('user.profile', user_id=user.id) }}" class="btn btn-primary">
+                                        {{ _('View Profile') }}
+                                    </a>
+                                    {% if current_user.is_authenticated %}
+                                    <button class="btn btn-outline-primary message-btn" data-user-id="{{ user.id }}">
+                                        {{ _('Message') }}
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            {{ _('No results found') }}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if current_user.is_authenticated %}
+<!-- Message Modal -->
+<div class="modal fade" id="messageModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ _('Send Message') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="messageForm">
+                    <input type="hidden" id="recipient_id" name="recipient_id">
+                    <div class="mb-3">
+                        <label for="message" class="form-label">{{ _('Message') }}</label>
+                        <textarea class="form-control" id="message" name="message" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">{{ _('Send') }}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Filter form handling
+    const filterForm = document.getElementById('filterForm');
+    filterForm.addEventListener('change', function() {
+        const formData = new FormData(filterForm);
+        const params = new URLSearchParams(formData);
+        window.location.search = params.toString();
+    });
+
+    // Message modal handling
+    {% if current_user.is_authenticated %}
+    const messageButtons = document.querySelectorAll('.message-btn');
+    const recipientIdInput = document.getElementById('recipient_id');
+    const messageForm = document.getElementById('messageForm');
+
+    messageButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const userId = this.dataset.userId;
+            recipientIdInput.value = userId;
+            new bootstrap.Modal(document.getElementById('messageModal')).show();
+        });
+    });
+
+    messageForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const formData = new FormData(messageForm);
+        try {
+            const response = await fetch('/send_message', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            if (response.ok) {
+                bootstrap.Modal.getInstance(document.getElementById('messageModal')).hide();
+                messageForm.reset();
+                alert("{{ _('Message sent successfully') }}");
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert("{{ _('Error sending message') }}");
+        }
+    });
+    {% endif %}
+});
+</script>
+{% endblock %}

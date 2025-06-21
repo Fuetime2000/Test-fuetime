@@ -1,0 +1,2047 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{ super() }}
+<style>
+    :root {
+        --primary-color: #3498db;
+        --secondary-color: #2ecc71;
+        --text-color: #333;
+        --background-color: #f8f9fa;
+    }
+
+    body {
+        background-color: var(--background-color);
+        font-family: 'Inter', 'Roboto', sans-serif;
+    }
+
+    .profile-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .profile-card {
+        border-radius: 15px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .profile-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Call Processing Bar */
+    .call-processing {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+
+    .call-processing-content {
+        background: white;
+        padding: 2rem;
+        border-radius: 1rem;
+        text-align: center;
+    }
+
+    .progress-bar {
+        width: 200px;
+        height: 4px;
+        background: #eee;
+        border-radius: 2px;
+        margin: 1rem auto;
+        overflow: hidden;
+    }
+
+    .progress-bar-fill {
+        width: 0%;
+        height: 100%;
+        background: #28a745;
+        transition: width 2.5s linear;
+    }
+
+    .profile-image-container {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+
+    .profile-image {
+        border: 4px solid white;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .icon-circle.icon-work {
+        background-color: rgba(142, 68, 173, 0.1);
+        width: 44px;
+        height: 44px;
+    }
+    .icon-circle.icon-work i {
+        color: #8e44ad;
+        font-size: 1.2em;
+    }
+
+    .profile-stats {
+        background-color: rgba(52, 152, 219, 0.05);
+        padding: 1rem;
+        border-radius: 10px;
+    }
+
+    .profile-stats .col {
+        text-align: center;
+    }
+
+    .profile-stats h4 {
+        color: var(--primary-color);
+        font-weight: 700;
+    }
+
+    .btn-custom {
+        border-radius: 25px;
+        text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-custom:hover {
+        transform: scale(1.05);
+    }
+
+        .skills-header {
+        border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+        padding-bottom: 1rem;
+    }
+
+    .text-gradient {
+        background: linear-gradient(120deg, var(--primary-color), var(--secondary-color));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .bg-primary-soft {
+        background-color: rgba(52, 152, 219, 0.1);
+    }
+
+    .btn-modern {
+        border-radius: 50px;
+        padding: 0.5rem 1.25rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border: none;
+        box-shadow: 0 2px 5px rgba(52, 152, 219, 0.2);
+    }
+
+    .btn-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+    }
+
+    .skills-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        padding: 1rem 0;
+    }
+
+    .skills-container .badge {
+        font-size: 0.9rem;
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        background: linear-gradient(120deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        transition: all 0.3s ease;
+        border: none;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .skills-container .badge:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    }
+    
+    .work-experience .badge {
+        background-color: #6c757d;
+        color: white;
+        font-weight: 500;
+        padding: 0.4rem 0.8rem;
+        border-radius: 50px;
+        transition: all 0.3s ease;
+    }
+    
+    .work-experience .badge:hover {
+        background-color: #5a6268;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    }
+
+    .profile-details {
+        background-color: white;
+        border-radius: 15px;
+        transition: all 0.3s ease;
+        margin-bottom: 2rem;
+    }
+
+    .profile-details:hover {
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .detail-card {
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        background-color: #fff;
+        border-radius: 12px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .detail-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    .icon-circle {
+        width: 42px;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        font-size: 1.2rem;
+        margin-right: 1rem;
+    }
+
+    .detail-card .text-muted {
+        color: #6c757d !important;
+        font-size: 0.875rem;
+    }
+
+    .detail-card h6 {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+        color: #2d3436;
+    }
+
+    /* Related Users Styles */
+    .related-user-card {
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0,0,0,0.1);
+    }
+    .related-user-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .related-user-avatar {
+        flex-shrink: 0;
+        position: relative;
+    }
+    .related-user-avatar .status-badge {
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        border: 2px solid #fff;
+    }
+    .related-user-avatar .status-badge.online {
+        background-color: #2ecc71;
+    }
+    .related-user-avatar .status-badge.offline {
+        background-color: #95a5a6;
+    }
+    .related-user-rating {
+        font-size: 0.85rem;
+    }
+    .related-user-rating .fa-star {
+        color: #f1c40f;
+    }
+    .related-user-rating .fa-star-half-alt {
+        color: #f1c40f;
+    }
+    .related-user-work {
+        font-size: 0.8rem;
+        color: #7f8c8d;
+    }
+    .related-user-location {
+        font-size: 0.8rem;
+    }
+    .related-user-rate {
+        font-size: 0.85rem;
+        font-weight: 500;
+        margin-bottom: 0.25rem !important;
+    }
+    .related-user-rate .fa-rupee-sign {
+        font-size: 0.8em;
+    }
+
+    .skills-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+
+    .skills-container .badge {
+        font-size: 0.875rem;
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+        background-color: #f8f9fa;
+        color: #2d3436;
+        border: 1px solid #dee2e6;
+    }
+
+    .row.g-4 {
+        margin: 0 -1rem;
+    }
+
+    .row.g-4 > [class*='col-'] {
+        padding: 0 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .icon-circle i { font-size: 1.2rem; }
+    .icon-education { background-color: rgba(88, 86, 233, 0.1); }
+    .icon-education i { color: #5856e9; }
+    .icon-experience { background-color: rgba(52, 199, 89, 0.1); }
+    .icon-experience i { color: #34c759; }
+    .icon-location { background-color: rgba(255, 69, 58, 0.1); }
+    .icon-location i { color: #ff453a; }
+    .icon-skills { background-color: rgba(255, 159, 10, 0.1); }
+    .icon-skills i { color: #ff9f0a; }
+    .icon-email { background-color: rgba(90, 200, 250, 0.1); }
+    .icon-email i { color: #5ac8fa; }
+    .icon-phone { background-color: rgba(175, 82, 222, 0.1); }
+    .icon-phone i { color: #af52de; }
+    .icon-birthday { background-color: rgba(255, 45, 85, 0.1); }
+    .icon-birthday i { color: #ff2d55; }
+    .icon-payment { background-color: rgba(50, 215, 75, 0.1); }
+    .icon-payment i { color: #32d74b; }
+    
+    .detail-card .text-muted { font-size: 0.9rem; }
+    .detail-card h6 { font-size: 1rem; }
+    .detail-card p { line-height: 1.5; }
+
+    .reviews-section {
+        background-color: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .reviews-section:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .review-item {
+        padding: 1.5rem;
+        border-radius: 15px;
+        transition: all 0.3s ease;
+        background-color: #f8f9fa;
+        margin-bottom: 1.5rem;
+    }
+
+    .review-item:hover {
+        background-color: #fff;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        transform: translateY(-3px);
+    }
+
+    .review-avatar {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border: 3px solid #fff;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .review-avatar:hover {
+        transform: scale(1.1);
+    }
+
+    .review-rating {
+        display: inline-flex;
+        gap: 0.25rem;
+        align-items: center;
+        padding: 0.5rem 1rem;
+        background-color: #fff;
+        border-radius: 20px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .review-date {
+        font-size: 0.85rem;
+        color: #6c757d;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .review-comment {
+        margin-top: 1rem;
+        line-height: 1.6;
+        color: #2d3436;
+    }
+
+    .rating-input {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+        gap: 0.5rem;
+        font-size: 1.5rem;
+    }
+
+    .rating-input label {
+        cursor: pointer;
+        color: #ffc107;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .rating-input label:hover,
+    .rating-input label:hover ~ label,
+    .rating-input input:checked ~ label {
+        color: #ffc107;
+        transform: scale(1.2);
+    }
+
+    .rating-input input {
+        display: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    @media (max-width: 576px) {
+        .review-item {
+            padding: 1rem;
+        }
+
+        .review-avatar {
+            width: 50px;
+            height: 50px;
+        }
+
+        .review-rating {
+            padding: 0.35rem 0.75rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .profile-container {
+            padding: 1rem;
+        }
+        .profile-image-container {
+            margin-bottom: 1rem;
+        }
+    }
+    
+    /* Profile Image */
+    .profile-image-container {
+        margin: 20px 0;
+    }
+        .profile-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        /* Edit Button */
+        .edit-profile-btn {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            padding: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .edit-profile-btn:hover {
+            background-color: #ffffff;
+            transform: scale(1.1);
+        }
+        
+        /* Profile Sections */
+        .profile-details {
+            margin-top: 20px;
+        }
+        .profile-section {
+            margin-bottom: 30px;
+        }
+        .profile-section h5 {
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        /* Skills */
+        .skill-item {
+            margin-bottom: 15px;
+        }
+        .progress {
+            height: 10px;
+            border-radius: 5px;
+        }
+        .progress-bar {
+            background-color: #007bff;
+        }
+        
+        /* Reviews */
+        .reviews-section {
+            margin-bottom: 2rem;
+        }
+        .review-rating {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            background-color: #f8f9fa;
+            border-radius: 20px;
+        }
+        .review-rating i {
+            font-size: 1.1rem;
+            margin-right: 2px;
+        }
+        .review-date {
+            font-size: 0.9rem;
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .reviews-list {
+            margin-top: 2rem;
+        }
+        .review-item {
+            background-color: #ffffff;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .review-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        .review-avatar {
+            width: 48px;
+            height: 48px;
+            object-fit: cover;
+        }
+        .review-comment {
+            color: #495057;
+            line-height: 1.6;
+            margin-top: 0.75rem;
+        }
+        
+        /* Rating Input */
+        .rating-input {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: flex-start;
+            gap: 0.25rem;
+            margin: 0.5rem 0;
+        }
+        .rating-input input {
+            display: none;
+        }
+        .rating-input label {
+            font-size: 2rem;
+            color: #dddddd;
+            cursor: pointer;
+            transition: color 0.2s ease;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        .rating-input label:hover,
+        .rating-input label:hover ~ label,
+        .rating-input input:checked ~ label {
+            color: #ffd700;
+        }
+        
+        /* Media Queries */
+        @media (max-width: 576px) {
+            .review-item {
+                padding: 1rem;
+            }
+            .review-avatar {
+                width: 40px;
+                height: 40px;
+            }
+            .review-rating {
+                padding: 0.35rem 0.75rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .profile-container {
+                padding: 1rem;
+            }
+            .profile-image-container {
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
+</style>
+{% endblock %}
+
+{% block title %}{{ user.full_name|default('User Profile') }} - Profile{% endblock %}
+
+{% block scripts %}
+<script>
+// Function to refresh profile page
+async function refreshProfilePage() {
+    // Get the profile content container
+    const profileContent = document.querySelector('#profile-content');
+    if (!profileContent) {
+        console.error('Profile content container not found');
+        return;
+    }
+    
+    // Create loading overlay
+    const loadingOverlay = document.createElement('div');
+    loadingOverlay.style.position = 'fixed';
+    loadingOverlay.style.top = '0';
+    loadingOverlay.style.left = '0';
+    loadingOverlay.style.width = '100%';
+    loadingOverlay.style.height = '100%';
+    loadingOverlay.style.background = 'rgba(255, 255, 255, 0.8)';
+    loadingOverlay.style.display = 'flex';
+    loadingOverlay.style.justifyContent = 'center';
+    loadingOverlay.style.alignItems = 'center';
+    loadingOverlay.style.zIndex = '9999';
+    
+    // Add spinner to loading overlay
+    const spinner = document.createElement('div');
+    spinner.className = 'spinner-border text-primary';
+    spinner.setAttribute('role', 'status');
+    
+    const spinnerText = document.createElement('span');
+    spinnerText.className = 'visually-hidden';
+    spinnerText.textContent = 'Loading...';
+    
+    spinner.appendChild(spinnerText);
+    loadingOverlay.appendChild(spinner);
+    document.body.appendChild(loadingOverlay);
+    
+    try {
+        // Add timestamp to URL to prevent caching
+        const timestamp = new Date().getTime();
+        const url = window.location.pathname + '?_=' + timestamp;
+        
+        // Fetch updated profile content
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+            throw new Error('HTTP error! status: ' + response.status);
+        }
+        
+        const html = await response.text();
+        
+        // Create a temporary container
+        const temp = document.createElement('div');
+        temp.innerHTML = html;
+        
+        // Find the new profile content
+        const newContent = temp.querySelector('#profile-content');
+        if (newContent) {
+            // Replace old content with new
+            profileContent.innerHTML = newContent.innerHTML;
+            
+            // Re-initialize any scripts
+            initializeProfileScripts();
+            
+            // Create success alert
+            const successAlert = document.createElement('div');
+            successAlert.className = 'alert alert-success alert-dismissible fade show';
+            
+            const alertContent = document.createElement('strong');
+            alertContent.textContent = 'Success! ';
+            
+            const alertMessage = document.createTextNode('Profile updated successfully.');
+            
+            const closeButton = document.createElement('button');
+            closeButton.type = 'button';
+            closeButton.className = 'btn-close';
+            closeButton.setAttribute('data-bs-dismiss', 'alert');
+            closeButton.setAttribute('aria-label', 'Close');
+            
+            successAlert.appendChild(alertContent);
+            successAlert.appendChild(alertMessage);
+            successAlert.appendChild(closeButton);
+            profileContent.prepend(successAlert);
+            
+            // Auto-dismiss success message
+            setTimeout(function() {
+                if (successAlert.parentNode) {
+                    successAlert.remove();
+                }
+            }, 3000);
+        } else {
+            throw new Error('New profile content not found in response');
+        }
+    } catch (error) {
+        console.error('Error refreshing profile:', error);
+        
+        // Create error alert
+        const errorAlert = document.createElement('div');
+        errorAlert.className = 'alert alert-danger alert-dismissible fade show';
+        
+        const alertContent = document.createElement('strong');
+        alertContent.textContent = 'Error! ';
+        
+        const alertMessage = document.createTextNode('Failed to refresh profile: ' + error.message);
+        
+        const closeButton = document.createElement('button');
+        closeButton.type = 'button';
+        closeButton.className = 'btn-close';
+        closeButton.setAttribute('data-bs-dismiss', 'alert');
+        closeButton.setAttribute('aria-label', 'Close');
+        
+        errorAlert.appendChild(alertContent);
+        errorAlert.appendChild(alertMessage);
+        errorAlert.appendChild(closeButton);
+        profileContent.prepend(errorAlert);
+    } finally {
+        // Remove loading overlay
+        if (loadingOverlay.parentNode) {
+            loadingOverlay.remove();
+        }
+    }
+}
+
+// Show toast notification
+function showToast(title, message, type = 'info') {
+    const toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) return;
+    
+    const toast = document.createElement('div');
+    toast.className = `toast show align-items-center text-white bg-${type} border-0`;
+    toast.role = 'alert';
+    toast.setAttribute('aria-live', 'assertive');
+    toast.setAttribute('aria-atomic', 'true');
+    
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">
+                <strong>${title}</strong><br>${message}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    `;
+    
+    toastContainer.appendChild(toast);
+    
+    // Auto-remove the toast after 5 seconds
+    setTimeout(() => {
+        toast.remove();
+    }, 5000);
+}
+
+// Initialize WebSocket listeners and profile functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const userId = '{{ user.id }}';
+    const roomName = 'user_' + userId;
+    
+    // Check for any pending calls that need completion when page loads
+    checkPendingCalls();
+    let hasJoined = false;
+    let joinAttempts = 0;
+    const MAX_JOIN_ATTEMPTS = 5;  // Increased from 3 to 5
+    
+    function handleProfileUpdate(data) {
+        console.log('Profile update received:', data);
+        if (!data || data.user_id !== parseInt(userId, 10)) return;
+        
+        if (data.success === false) {
+            // Show error message
+            const errorMsg = data.error || 'Unknown error occurred';
+            showToast('Error', 'Failed to update profile: ' + errorMsg, 'danger');
+        } else {
+            console.log('Updating UI with new profile data:', data);
+            
+            // Update profile image if it was changed
+            if (data.photo) {
+                const profileImages = document.querySelectorAll('.profile-image');
+                profileImages.forEach(img => {
+                    if (img.dataset.userId === userId || !img.dataset.userId) {
+                        const newSrc = data.photo.startsWith('http') ? data.photo : 
+                                    `/static/uploads/profile_pics/${data.photo}`;
+                        img.src = newSrc;
+                        // Force image reload
+                        img.onerror = function() {
+                            this.src = '{{ url_for("static", filename="img/default-avatar.png") }}';
+                        };
+                    }
+                });
+            }
+            
+            // Update profile name if it was changed
+            if (data.full_name) {
+                const nameElements = document.querySelectorAll('.profile-name');
+                nameElements.forEach(el => {
+                    if (el.dataset.userId === userId || !el.dataset.userId) {
+                        el.textContent = data.full_name;
+                        // Also update the title if this is the main profile name
+                        const titleElement = document.querySelector('title');
+                        if (titleElement) {
+                            titleElement.textContent = data.full_name + ' - Profile | FueTime';
+                        }
+                    }
+                });
+            }
+            
+            // Update work/bio if available in the data
+            if (data.work) {
+                const workElements = document.querySelectorAll('.profile-work');
+                workElements.forEach(el => {
+                    if (el.dataset.userId === userId || !el.dataset.userId) {
+                        el.textContent = data.work;
+                    }
+                });
+            }
+            
+            if (data.bio) {
+                const bioElements = document.querySelectorAll('.profile-bio');
+                bioElements.forEach(el => {
+                    if (el.dataset.userId === userId || !el.dataset.userId) {
+                        el.textContent = data.bio;
+                    }
+                });
+            }
+            
+            // Show success message
+            showToast('Success', 'Profile updated successfully!', 'success');
+        }
+    }
+    
+    function attemptJoinRoom() {
+        if (!hasJoined && joinAttempts < MAX_JOIN_ATTEMPTS) {
+            console.log('Attempting to join room:', roomName, 'Attempt:', joinAttempts + 1);
+            try {
+                if (socket && socket.connected) {
+                    socket.emit('join', { 
+                        room: roomName,
+                        user_id: userId
+                    }, (response) => {
+                        if (response && response.success) {
+                            console.log('Successfully joined room:', roomName);
+                            hasJoined = true;
+                        } else {
+                            console.error('Failed to join room:', response ? response.error : 'No response');
+                            if (joinAttempts < MAX_JOIN_ATTEMPTS - 1) {
+                                setTimeout(attemptJoinRoom, 1000 * (joinAttempts + 1)); // Exponential backoff
+                                joinAttempts++;
+                            }
+                        }
+                    });
+                } else {
+                    console.warn('Socket not connected, will retry...');
+                    if (joinAttempts < MAX_JOIN_ATTEMPTS - 1) {
+                        setTimeout(attemptJoinRoom, 1000 * (joinAttempts + 1)); // Exponential backoff
+                        joinAttempts++;
+                    }
+                }
+            } catch (error) {
+                console.error('Error joining room:', error);
+                if (joinAttempts < MAX_JOIN_ATTEMPTS - 1) {
+                    setTimeout(attemptJoinRoom, 1000 * (joinAttempts + 1)); // Exponential backoff
+                    joinAttempts++;
+                }
+            }
+        }
+    }
+    
+    // Join the user's room for real-time updates
+    if (typeof socket !== 'undefined' && userId) {
+        // Function to set up WebSocket event listeners
+        function setupSocketListeners() {
+            console.log('Setting up WebSocket listeners...');
+            
+            // Handle profile update events - use a named function for proper cleanup
+            const profileUpdateHandler = function(data) {
+                console.log('Profile update event received:', data);
+                handleProfileUpdate(data);
+            };
+            
+            // Remove any existing listeners to prevent duplicates
+            socket.off('profile_updated', profileUpdateHandler);
+            // Add the new listener
+            socket.on('profile_updated', profileUpdateHandler);
+            
+            // Handle connection established
+            socket.off('connect').on('connect', function() {
+                console.log('WebSocket connected, joining room:', roomName);
+                hasJoined = false;
+                joinAttempts = 0;
+                attemptJoinRoom();
+            });
+            
+            // Handle room joined confirmation
+            socket.off('room_joined').on('room_joined', function(data) {
+                if (data.room === roomName) {
+                    console.log('Successfully joined room:', data.room);
+                    hasJoined = true;
+                }
+            });
+            
+            // Handle reconnection
+            socket.off('reconnect').on('reconnect', function() {
+                console.log('WebSocket reconnected, rejoining room...');
+                hasJoined = false;
+                joinAttempts = 0;
+                attemptJoinRoom();
+            });
+            
+            // Handle connection errors
+            socket.off('connect_error').on('connect_error', function(error) {
+                console.error('WebSocket connection error:', error);
+            });
+        }
+        
+        // Initialize socket listeners
+        setupSocketListeners();
+        
+        // Join room if already connected
+        if (socket.connected) {
+            console.log('WebSocket already connected, joining room...');
+            attemptJoinRoom();
+        }
+        
+        // Handle join errors
+        socket.off('join_error').on('join_error', (error) => {
+            console.error('Error joining room:', error);
+            if (joinAttempts < MAX_JOIN_ATTEMPTS) {
+                setTimeout(attemptJoinRoom, 2000); // Retry after 2 seconds
+            }
+        });
+        
+        // Initial join attempt
+        attemptJoinRoom();
+        socket.on('connect', function() {
+            console.log('Socket connected');
+            hasJoined = false;
+            joinAttempts = 0;
+            attemptJoinRoom();
+        });
+        
+        socket.on('join_success', function(data) {
+            console.log('Successfully joined room:', data);
+            hasJoined = true;
+            joinAttempts = 0;
+        });
+        
+        socket.on('join_error', function(data) {
+            console.error('Failed to join room:', data.error);
+            hasJoined = false;
+            // Retry after a delay if we haven't exceeded max attempts
+            if (joinAttempts < MAX_JOIN_ATTEMPTS) {
+                setTimeout(attemptJoinRoom, 1000);
+            }
+        });
+        
+        socket.on('disconnect', function() {
+            console.log('Socket disconnected');
+            hasJoined = false;
+            // Attempt to reconnect after a short delay
+            setTimeout(function() {
+                socket.connect();
+            }, 1000);
+        });
+        
+        // Connect to socket if not already connected
+        if (!socket.connected) {
+            socket.connect();
+        } else {
+            // Initial join attempt if already connected
+            attemptJoinRoom();
+        }
+    }
+    
+    // Initialize profile scripts
+    initializeProfileScripts();
+});
+
+// Function to reinitialize profile scripts
+function initializeProfileScripts() {
+    // Re-attach any event listeners or initialize components specific to the profile page
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<!-- Toast Container -->
+<div id="toast-container" class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <!-- Toasts will be inserted here by JavaScript -->
+</div>
+
+<div id="profile-content" class="container profile-container">
+    <div class="row">
+        <!-- Profile Card -->
+        <div class="col-lg-4 mb-4">
+            <div class="card profile-card shadow-sm">
+                <div class="card-body text-center">
+                    {% if user.photo %}
+                        {% set profile_img_url = url_for('static', filename='uploads/' + user.photo) %}
+                    {% else %}
+                        {% set profile_img_url = url_for('static', filename='img/default-avatar.png') %}
+                    {% endif %}
+                    <div class="profile-image-container d-flex justify-content-center align-items-center">
+                        <div class="rounded-circle overflow-hidden" style="width: 200px; height: 200px; position: relative;">
+                            {% set default_avatar = url_for('static', filename='img/default-avatar.png') %}
+                            <img src="{{ profile_img_url }}" 
+                                 alt="{{ user.full_name }}" 
+                                 class="profile-image" 
+                                 onerror="this.onerror=null; this.src='{{ default_avatar }}';" />
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <h1 class="h4 mb-0 profile-name" data-user-id="{{ user.id }}">{{ user.full_name|default('User') }}</h1>
+                        <p class="text-muted mb-2 profile-work" data-user-id="{{ user.id }}">{{ user.work|default('Not specified') }}</p>
+                    </div>
+                    
+                    <div class="profile-stats text-center mb-4">
+                        <div class="row">
+                            <div class="col">
+                                <h4>{{ user.total_reviews|default(0) }}</h4>
+                                <small class="text-muted">Reviews</small>
+                            </div>
+                            <div class="col">
+                                <h4>{{ '%.1f'|format(user.average_rating|default(0.0)) }}</h4>
+                                <small class="text-muted">Rating</small>
+                            </div>
+                            <div class="col">
+                                <h4>{{ user.profile_views|default(0) }}</h4>
+                                <small class="text-muted">Views</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if current_user.id != user.id %}
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-success btn-custom" onclick="initiateCall('{{ user.id }}')">
+                            <i class="fas fa-phone-alt me-2"></i>Call
+                        </button>
+                        <a href="{{ url_for('chat', user_id=user.id) }}" class="btn btn-primary btn-custom">
+                            <i class="fas fa-envelope me-2 text-light"></i>Send Message
+                        </a>
+                        <button class="btn btn-outline-primary btn-custom" data-bs-toggle="modal" data-bs-target="#reviewModal">
+                            <i class="fas fa-star me-2 text-primary"></i>Write Review
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Details and Reviews -->
+        <div class="col-lg-8">
+            <!-- Profile Details Card -->
+            <div class="card shadow-sm profile-details">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h4 class="card-title mb-0">Profile Details</h4>
+                        {% if current_user.id == user.id %}
+                        <button class="btn btn-outline-primary btn-sm" onclick="editProfileDetails()">
+                            <i class="fas fa-edit me-1"></i> Edit
+                        </button>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="row g-4">
+                        <!-- Education -->
+                        <div class="col-md-6">
+                            <div class="detail-card p-3 bg-white rounded-3 h-100 shadow-sm">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="icon-circle icon-education me-3">
+                                        <i class="fas fa-graduation-cap"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold">Education</h6>
+                                        <small class="text-muted">Academic Background</small>
+                                    </div>
+                                </div>
+                                <p class="mb-0 text-muted">{{ user.education|default('Not specified', true) }}</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Experience -->
+                        <div class="col-md-6">
+                            <div class="detail-card p-3 bg-white rounded-3 h-100 shadow-sm">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="icon-circle icon-experience me-3">
+                                        <i class="fas fa-briefcase"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold">Experience</h6>
+                                        <small class="text-muted">Work History</small>
+                                    </div>
+                                </div>
+                                <p class="mb-0 text-muted">{{ user.experience | format_experience | default('Not specified', true) }}</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Location -->
+                        <div class="col-md-6">
+                            <div class="detail-card p-3 bg-white rounded-3 h-100 shadow-sm">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="icon-circle icon-location me-3">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold">Location</h6>
+                                        <small class="text-muted">Current City</small>
+                                    </div>
+                                </div>
+                                <p class="mb-0 text-muted">{{ user.current_location|default('Not specified', true) }}</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Skills -->
+                        <div class="col-md-6">
+                            <div class="detail-card p-3 bg-white rounded-3 h-100 shadow-sm">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="icon-circle icon-skills me-3">
+                                        <i class="fas fa-tools"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold">Skills</h6>
+                                        <small class="text-muted">Expertise & Abilities</small>
+                                    </div>
+                                </div>
+                                <div class="skills-container">
+                                    {% if user.skills %}
+                                        {% for skill in user.skills.split(',') %}
+                                            <span class="badge bg-primary me-1 mb-2">{{ skill.strip() }}</span>
+                                        {% endfor %}
+                                    {% else %}
+                                        <p class="text-muted small mb-0">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            No skills added yet
+                                        </p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Work Experience -->
+                        <div class="col-md-6">
+                            <div class="detail-card p-3 bg-white rounded-3 h-100 shadow-sm">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="icon-circle icon-work me-3">
+                                        <i class="fas fa-briefcase fa-lg" style="color: #8e44ad;"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold">Work Experience</h6>
+                                        <small class="text-muted">Previous Companies</small>
+                                    </div>
+                                </div>
+                                <div class="work-experience">
+                                    {% if user.work_experience and user.work_experience|trim %}
+                                        <ul class="list-unstyled mb-0">
+                                            {% for company in user.work_experience.split(',') %}
+                                                {% if company|trim %}
+                                                    <li class="mb-2">
+                                                        <i class="fas fa-building text-primary me-2"></i>
+                                                        <span>{{ company.strip() }}</span>
+                                                    </li>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </ul>
+                                    {% else %}
+                                        <p class="text-muted small mb-0">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            No work experience added yet
+                                        </p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Payment Rate -->
+                        <div class="col-md-6">
+                            <div class="detail-card p-3 bg-white rounded-3 h-100 shadow-sm">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="icon-circle icon-payment me-3">
+                                        <i class="fas fa-rupee-sign"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold">Payment Rate</h6>
+                                        <small class="text-muted">{{ user.payment_type|title if user.payment_type else 'Not specified' }}</small>
+                                    </div>
+                                </div>
+                                <p class="mb-0 text-muted">{% if user.payment_charge %}₹{{ user.payment_charge }} {% if user.payment_type == 'hourly' %}/ hour{% elif user.payment_type == 'fixed' %}fixed{% endif %}{% else %}Not specified{% endif %}</p>
+                            </div>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="col-md-6">
+                            <div class="detail-card p-3 bg-white rounded-3 h-100 shadow-sm">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="icon-circle icon-email me-3">
+                                        <i class="fas fa-envelope"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold">Email</h6>
+                                        <small class="text-muted">Contact Email</small>
+                                    </div>
+                                </div>
+                                <p class="mb-0 text-muted">{{ user.email|mask_email|default('Not specified', true) }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="col-md-6">
+                            <div class="detail-card p-3 bg-white rounded-3 h-100 shadow-sm">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="icon-circle icon-phone me-3">
+                                        <i class="fas fa-phone"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold">Phone</h6>
+                                        <small class="text-muted">Contact Number</small>
+                                    </div>
+                                </div>
+                                <p class="mb-0 text-muted">{{ user.phone|mask_phone|default('Not specified', true) }}</p>
+                            </div>
+                        </div>
+
+                        {% if user.date_of_birth %}
+                        <div class="col-md-6">
+                            <div class="detail-card p-3 bg-white rounded-3 h-100 shadow-sm">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="icon-circle icon-birthday me-3">
+                                        <i class="fas fa-birthday-cake"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold">Date of Birth</h6>
+                                        <small class="text-muted">Birthday & Age</small>
+                                    </div>
+                                </div>
+                                <p class="mb-0 text-muted">{{ user.date_of_birth.strftime('%B %d, %Y') }} ({{ user.age }} years)</p>
+                            </div>
+                        </div>
+                        {% endif %}
+
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Portfolio Card -->
+            <div class="card shadow-sm profile-details mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h4 class="card-title mb-0">Portfolio</h4>
+                        <div>
+                            {% if portfolio %}
+                            <a href="{{ url_for('portfolio.view_portfolio', user_id=user.id) }}" class="btn btn-outline-secondary btn-sm me-2">
+                                <i class="fas fa-eye"></i> View Portfolio
+                            </a>
+                            {% endif %}
+                            {% if current_user.id == user.id %}
+                            <a href="{{ url_for('portfolio.edit_portfolio', user_id=user.id) }}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-edit"></i> {{ 'Edit' if portfolio else 'Create' }} Portfolio
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if portfolio %}
+                        {% if portfolio.description %}
+                        <div class="mb-4">
+                            <p class="text-muted">{{ portfolio.description }}</p>
+                        </div>
+                        {% endif %}
+
+                        <!-- Skills Section -->
+                        {% if portfolio.skills %}
+                        <div class="mb-4">
+                            <h5 class="mb-3">Skills & Expertise</h5>
+                            <div class="row">
+                                {% for skill in portfolio.skills %}
+                                <div class="col-md-4 mb-3">
+                                    <div class="skill-card p-3 border rounded">
+                                        <h6>{{ skill.name }}</h6>
+                                        {% set progress_width = skill.proficiency_level * 20 %}
+                                        <div class="progress mb-2">
+                                            <div class="progress-bar skill-progress"
+                                                data-width="{{ progress_width }}"
+                                                role="progressbar"
+                                                aria-valuenow="{{ skill.proficiency_level }}"
+                                                aria-valuemin="0"
+                                                aria-valuemax="5">
+                                            </div>
+                                        </div>
+                                        <small class="text-muted">{{ skill.years_experience }} years</small>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Projects Section -->
+                        {% if portfolio.projects %}
+                        <div>
+                            <h5 class="mb-3">Projects</h5>
+                            <div class="row">
+                                {% for project in portfolio.projects %}
+                                <div class="col-md-6 mb-4">
+                                    <div class="card h-100 project-card">
+                                        {% if project.image_url %}
+                                        <img src="{{ url_for('static', filename='uploads/' + project.image_url) }}" 
+                                             class="card-img-top" alt="{{ project.title }}">
+                                        {% endif %}
+                                        <div class="card-body">
+                                            <h5 class="card-title">{{ project.title }}</h5>
+                                            <p class="card-text">{{ project.description }}</p>
+                                            <div class="mb-2">
+                                                <span class="badge bg-primary">{{ project.category }}</span>
+                                                {% for tech in project.technologies %}
+                                                <span class="badge bg-secondary">{{ tech.name }}</span>
+                                                {% endfor %}
+                                            </div>
+                                            {% if project.project_url %}
+                                            <a href="{{ project.project_url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-external-link-alt"></i> View Project
+                                            </a>
+                                            {% endif %}
+                                        </div>
+                                        <div class="card-footer text-muted">
+                                            {% if project.start_date %}
+                                            {{ project.start_date.strftime('%b %Y') }}
+                                            {% if project.end_date %}
+                                            - {{ project.end_date.strftime('%b %Y') }}
+                                            {% else %}
+                                            - Present
+                                            {% endif %}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% else %}
+                        {% if current_user.id == user.id %}
+                        <div class="text-center py-4">
+                            <p class="text-muted mb-3">You haven't created your portfolio yet.</p>
+                            <a href="{{ url_for('portfolio.edit_portfolio', user_id=user.id) }}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Create Portfolio
+                            </a>
+                        </div>
+                        {% else %}
+                        <p class="text-muted text-center py-4">This user hasn't created their portfolio yet.</p>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Reviews Card -->
+            <div class="card shadow-sm reviews-section">
+                <div class="card-body">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+                        <div class="d-flex align-items-center">
+                            <h4 class="card-title h3 mb-0 me-3">Reviews</h4>
+                            <div class="review-rating">
+                                {% set display_rating = user.average_rating|default(0.0)|float %}
+                                {% set rounded_rating = display_rating|round(1) %}
+                                {% set full_stars = display_rating|int %}
+                                {% set has_half_star = (display_rating % 1) >= 0.3 and (display_rating % 1) <= 0.7 %}
+                                {% set has_full_star_rounding = (display_rating % 1) > 0.7 %}
+                                
+                                {% if has_full_star_rounding %}
+                                    {% set full_stars = full_stars + 1 %}
+                                {% endif %}
+                                
+                                {% set empty_stars = 5 - full_stars %}
+                                {% if has_half_star %}
+                                    {% set empty_stars = empty_stars - 1 %}
+                                {% endif %}
+                                
+                                <span class="h5 mb-0 me-2">
+                                    {{ rounded_rating }}
+                                </span>
+                                
+                                {% for i in range(full_stars) %}
+                                    <i class="fas fa-star text-warning"></i>
+                                {% endfor %}
+                                
+                                {% if has_half_star %}
+                                    <i class="fas fa-star-half-alt text-warning"></i>
+                                {% endif %}
+                                
+                                {% for i in range(empty_stars) %}
+                                    <i class="far fa-star text-warning"></i>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="review-date">
+                                <i class="far fa-comment-dots"></i>
+                                {{ total_reviews }} reviews
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Debug: Reviews Data -->
+                    <div class="alert alert-info d-none" id="debug-reviews">
+                        <h5>Debug Info (visible to admins only)</h5>
+                        <p>Reviews variable type: {{ reviews|tojson|safe }}</p>
+                        <p>Number of reviews: {{ reviews|length if reviews else 0 }}</p>
+                        {% if reviews %}
+                            <p>First review: {{ reviews[0]|tojson|safe }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    {% if current_user.is_authenticated and current_user.is_admin %}
+                    <script>
+                        // Show debug info for admin users
+                        (function() {
+                            document.addEventListener('DOMContentLoaded', function() {
+                                var debugElement = document.getElementById('debug-reviews');
+                                if (debugElement) {
+                                    debugElement.classList.remove('d-none');
+                                }
+                            });
+                        })();
+                    </script>
+                    {% endif %}
+                    
+                    {% if reviews %}
+                    <div class="reviews-container">
+                        {% for review in reviews %}
+                        <div class="review-item mb-4 pb-4 {% if not loop.last %}border-bottom{% endif %}">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div class="d-flex align-items-center">
+                                    <div class="reviewer-avatar me-3">
+                                        {% if review.reviewer_photo %}
+                                            <img src="{{ url_for('static', filename='uploads/' + review.reviewer_photo) }}" alt="{{ review.reviewer_name }}" class="rounded-circle" width="50" height="50">
+                                        {% else %}
+                                            <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                                <i class="fas fa-user text-white"></i>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0">{{ review.reviewer_name }}</h6>
+                                        <div class="text-muted small">
+                                            {{ review.created_at.split('T')[0] }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="rating">
+                                    {% set review_rating = review.rating|float %}
+                                    {% set decimal_part = (review_rating % 1)|float %}
+                                    {% set full_stars = review_rating|int %}
+                                    {% set half_star = 0 %}
+                                    {% if decimal_part >= 0.3 and decimal_part <= 0.7 %}
+                                        {% set half_star = 1 %}
+                                    {% elif decimal_part > 0.7 %}
+                                        {% set full_stars = full_stars + 1 %}
+                                    {% endif %}
+                                    {% set empty_stars = 5 - full_stars - half_star %}
+                                    {% for i in range(full_stars) %}
+                                        <i class="fas fa-star text-warning"></i>
+                                    {% endfor %}
+                                    {% if half_star %}
+                                        <i class="fas fa-star-half-alt text-warning"></i>
+                                    {% endif %}
+                                    {% for i in range(empty_stars) %}
+                                        <i class="far fa-star text-warning"></i>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <p class="review-comment mb-0">{{ review.comment }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <div class="mb-3">
+                            <i class="far fa-comment-alt fa-3x text-muted opacity-50"></i>
+                        </div>
+                        <p class="text-muted mb-0">No reviews yet</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Related Users Section -->
+            {% if related_users %}
+            <div class="card shadow-sm mt-4">
+                <div class="card-body">
+                    <h4 class="card-title mb-4">Similar Users</h4>
+                    <div class="row g-3">
+                        {% for related_user in related_users %}
+                        <div class="col-md-6 col-lg-6">
+                            <a href="{{ url_for('profile', user_id=related_user.id) }}" class="text-decoration-none text-dark">
+                                <div class="card h-100 related-user-card">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center">
+                                            <div class="related-user-avatar me-3">
+                                                {% if related_user.photo %}
+                                                    <img src="{{ url_for('static', filename='uploads/' + related_user.photo) }}" 
+                                                         alt="{{ related_user.full_name }}" 
+                                                         class="rounded-circle" 
+                                                         style="width: 60px; height: 60px; object-fit: cover;">
+                                                {% else %}
+                                                    <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center" 
+                                                         style="width: 60px; height: 60px;">
+                                                        <i class="fas fa-user text-white fa-2x"></i>
+                                                    </div>
+                                                {% endif %}
+                                                <span class="status-badge {% if related_user.is_online %}online{% else %}offline{% endif %}" 
+                                                      title="{% if related_user.is_online %}Online{% else %}Offline{% endif %}"></span>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <h6 class="mb-1">{{ related_user.full_name }}</h6>
+                                                {% if related_user.work %}
+                                                    <p class="related-user-work mb-1">{{ related_user.work }}</p>
+                                                {% endif %}
+                                                {% if related_user.payment_charge %}
+                                                    <p class="related-user-rate text-primary small mb-1">
+                                                        <i class="fas fa-rupee-sign"></i>
+                                                        {{ '%.2f'|format(related_user.payment_charge) }}
+                                                        {% if related_user.payment_type == 'hourly' %} / hour
+                                                        {% elif related_user.payment_type == 'daily' %} / day
+                                                        {% elif related_user.payment_type == 'monthly' %} / month
+                                                        {% elif related_user.payment_type %}
+                                                            / {{ related_user.payment_type }}
+                                                        {% endif %}
+                                                    </p>
+                                                {% endif %}
+                                                {% if related_user.current_location %}
+                                                    <p class="related-user-location text-muted small mb-1">
+                                                        <i class="fas fa-map-marker-alt text-primary me-1"></i>
+                                                        {{ related_user.current_location }}
+                                                    </p>
+                                                {% endif %}
+                                                {% if related_user.average_rating %}
+                                                    <div class="related-user-rating d-flex align-items-center">
+                                                        <div class="me-1">
+                                                            {% set rating = related_user.average_rating|float %}
+                                                            {% set full_stars = rating|int %}
+                                                            {% set has_half = (rating % 1) >= 0.5 %}
+                                                            {% for i in range(5) %}
+                                                                {% if i < full_stars %}
+                                                                    <i class="fas fa-star"></i>
+                                                                {% elif i == full_stars and has_half %}
+                                                                    <i class="fas fa-star-half-alt"></i>
+                                                                {% else %}
+                                                                    <i class="far fa-star"></i>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </div>
+                                                        <span class="text-muted small ms-1">({{ related_user.total_reviews }})</span>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+        </div>
+    </div>
+</div>
+
+<!-- Call Processing Modal -->
+<div class="call-processing" id="callProcessing">
+    <div class="call-processing-content">
+        <h5>Processing Call</h5>
+        <p>Please wait while we connect your call...</p>
+        <div class="progress-bar">
+            <div class="progress-bar-fill"></div>
+        </div>
+        <p class="text-muted">Cost: ₹2.5</p>
+    </div>
+</div>
+
+<!-- Review Modal -->
+{% if current_user.id != user.id %}
+<div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reviewModalLabel">Write a Review for {{ user.full_name }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="reviewForm" method="POST" action="{{ url_for('review.review', worker_id=user.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-4">
+                        <label class="form-label">Rating (1-5 stars)</label>
+                        <div class="rating-input">
+                            {% for i in range(5, 0, -1) %}
+                            <input type="radio" id="modalStar{{ i }}" name="rating" value="{{ i }}" required>
+                            <label for="modalStar{{ i }}" title="{{ i }} stars">★</label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <textarea class="form-control" id="reviewComment" name="comment" rows="4" placeholder="Write your review here..." required></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100">Submit Review</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const reviewForm = document.getElementById('reviewForm');
+    const ratingInputs = document.querySelectorAll('.rating-input input');
+    const ratingLabels = document.querySelectorAll('.rating-input label');
+    const reviewModal = new bootstrap.Modal(document.getElementById('reviewModal'));
+    
+    // Initialize star rating labels with Font Awesome icons
+    ratingLabels.forEach(label => {
+        label.innerHTML = '<i class="far fa-star text-warning"></i>';
+    });
+    
+    // Handle star rating hover and click effects
+    ratingInputs.forEach((input, index) => {
+        input.addEventListener('change', function() {
+            ratingLabels.forEach((label, labelIndex) => {
+                label.innerHTML = `<i class="${labelIndex <= index ? 'fas' : 'far'} fa-star text-warning"></i>`;
+            });
+        });
+    });
+
+    // Handle form submission via AJAX
+    reviewForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(reviewForm);
+        const selectedRating = document.querySelector('.rating-input input:checked');
+        
+        if (!selectedRating) {
+            alert('Please select a rating before submitting.');
+            return;
+        }
+
+        // Get CSRF token from the form's hidden input
+        const csrfToken = formData.get('csrf_token');
+
+        fetch(reviewForm.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+                'X-CSRF-Token': csrfToken
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show success message
+                const successMessage = document.createElement('div');
+                successMessage.className = 'alert alert-success alert-dismissible fade show';
+                successMessage.innerHTML = `
+                    <strong>Success!</strong> Review submitted successfully!
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.querySelector('.container').insertBefore(successMessage, document.querySelector('.container').firstChild);
+                
+                // Auto dismiss after 5 seconds
+                setTimeout(() => {
+                    successMessage.remove();
+                }, 5000);
+                
+                // Reset form
+                reviewForm.reset();
+                ratingLabels.forEach(label => {
+                    label.innerHTML = '<i class="far fa-star text-warning"></i>';
+                });
+                
+                // Close modal and refresh page to show the new review
+                reviewModal.hide();
+                location.reload();
+            } else {
+                // Show error message
+                const errorMessage = document.createElement('div');
+                errorMessage.className = 'alert alert-danger alert-dismissible fade show';
+                errorMessage.innerHTML = `
+                    <strong>Error!</strong> ${data.message || 'Failed to submit review'}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.querySelector('.container').insertBefore(errorMessage, document.querySelector('.container').firstChild);
+                
+                // Auto dismiss after 5 seconds
+                setTimeout(() => {
+                    errorMessage.remove();
+                }, 5000);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Show error message
+            const errorMessage = document.createElement('div');
+            errorMessage.className = 'alert alert-danger alert-dismissible fade show';
+            errorMessage.innerHTML = `
+                <strong>Error!</strong> Failed to submit review. Please try again.
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.querySelector('.container').insertBefore(errorMessage, document.querySelector('.container').firstChild);
+            
+            // Auto dismiss after 5 seconds
+            setTimeout(() => {
+                errorMessage.remove();
+            }, 5000);
+        });
+    });
+});
+
+function updateWalletBalance(newBalance) {
+    // Convert newBalance to float and ensure 2 decimal places
+    const formattedBalance = parseFloat(newBalance).toFixed(2);
+    
+    // Update all wallet balance displays on the page
+    const walletBalanceElements = document.querySelectorAll('.wallet-balance, .badge.bg-success');
+    walletBalanceElements.forEach(element => {
+        if (element) {
+            // Animate the balance change
+            const currentBalance = parseFloat(element.textContent.replace('₹', '')) || 0;
+            animateBalance(element, currentBalance, parseFloat(formattedBalance));
+        }
+    });
+    
+    // Update the current_user.wallet_balance in session
+    fetch('/update-session-balance', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({ balance: formattedBalance })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (!data.success) {
+            console.error('Failed to update session balance:', data.message);
+            // Revert to old balance if update fails
+            walletBalanceElements.forEach(element => {
+                if (element) {
+                    element.textContent = '₹' + currentBalance.toFixed(2);
+                }
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error updating session balance:', error);
+    });
+}
+
+function animateBalance(element, start, end) {
+    const duration = 1000; // Animation duration in milliseconds
+    const startTime = performance.now();
+    
+    function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Easing function for smooth animation
+        const easeProgress = progress < .5 ? 
+            4 * progress * progress * progress :
+            1 - Math.pow(-2 * progress + 2, 3) / 2;
+        
+        const current = start + (end - start) * easeProgress;
+        element.textContent = '₹' + current.toFixed(2);
+        
+        if (progress < 1) {
+            requestAnimationFrame(update);
+        }
+    }
+    
+    requestAnimationFrame(update);
+}
+
+let callStartTime;
+let callId;
+let callInProgress = false;
+let callTimeoutId = null;
+const MAX_CALL_DURATION = 30 * 60 * 1000; // 30 minutes in milliseconds
+
+function initiateCall(userId) {
+    if (callInProgress) {
+        alert('A call is already in progress');
+        return;
+    }
+    
+    const callProcessing = document.getElementById('callProcessing');
+    if (callProcessing) {
+        callProcessing.style.display = 'flex';
+    }
+    const progressBar = callProcessing.querySelector('.progress-bar-fill');
+    
+    // Show processing modal
+    progressBar.style.width = '0%';
+    
+    // Start progress animation
+    setTimeout(function() {
+        progressBar.style.width = '100%';
+    }, 100);
+    
+    // Emit socket event to initiate call
+    if (typeof socket !== 'undefined') {
+        socket.emit('initiate_call', {
+            recipient_id: userId,
+            call_type: 'audio'  // or 'video' if you implement video calls
+        });
+        
+        // Set up response handler
+        const onCallResponse = (data) => {
+            // Clean up the listener
+            socket.off('call_initiated', onCallResponse);
+            
+            setTimeout(() => {
+                callProcessing.style.display = 'none';
+                
+                if (data.success) {
+                    // Update wallet balance display if new_balance is provided
+                    if (data.new_balance !== undefined) {
+                        updateWalletBalance(data.new_balance);
+                    }
+                    
+                    callId = data.call_id;
+                    callStartTime = Date.now();
+                    callInProgress = true;
+                    
+                    // Store call info in localStorage as backup
+                    const callInfo = {
+                        callId: data.call_id,
+                        startTime: Date.now(),
+                        targetPhone: data.phone_number
+                    };
+                    localStorage.setItem('pendingCall', JSON.stringify(callInfo));
+                    
+                    // Set a timeout to complete the call if user doesn't return
+                    callTimeoutId = setTimeout(() => {
+                        if (callInProgress) {
+                            completeCall();
+                        }
+                    }, MAX_CALL_DURATION);
+                    
+                    // Add visibilitychange listener before opening dialer
+                    document.addEventListener('visibilitychange', function onVisibilityChange() {
+                        if (document.visibilityState === 'visible') {
+                            // Remove the listener to prevent multiple calls
+                            document.removeEventListener('visibilitychange', onVisibilityChange);
+                            
+                            // Complete the call process
+                            completeCall(data.call_id);
+                        }
+                    });
+                    
+                    // Open phone dialer with the recipient's phone number
+                    if (data.phone_number) {
+                        window.location.href = `tel:${data.phone_number}`;
+                    } else {
+                        // Fallback to showing a message if phone number isn't available
+                        alert('Call initiated! Please check your phone to complete the call.');
+                    }
+                } else {
+                    // Handle error
+                    if (data.error === 'Insufficient balance') {
+                        // Show payment modal or redirect to wallet page
+                        showPaymentModal(data.required, data.current_balance);
+                    } else {
+                        alert(data.error || 'Failed to initiate call. Please try again.');
+                    }
+                }
+            }, 1000);
+        };
+        
+        // Listen for the response
+        socket.on('call_initiated', onCallResponse);
+        
+        // Set a timeout in case we don't get a response
+        setTimeout(() => {
+            socket.off('call_initiated', onCallResponse);
+            callProcessing.style.display = 'none';
+            alert('Connection timeout. Please try again.');
+        }, 10000); // 10 second timeout
+    } else {
+        callProcessing.style.display = 'none';
+        alert('WebSocket connection not available. Please refresh the page and try again.');
+    }
+}
+
+function handleVisibilityChange() {
+    if (document.visibilityState === 'visible' && callInProgress) {
+        // User has returned to the app, complete the call
+        completeCall();
+    }
+}
+
+function completeCall() {
+    if (!callId || !callInProgress) return;
+    
+    // Clear any pending timeouts
+    if (callTimeoutId) {
+        clearTimeout(callTimeoutId);
+        callTimeoutId = null;
+    }
+    
+    // Remove the event listener
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
+    
+    // Calculate call duration (in seconds)
+    const callDuration = Math.floor((Date.now() - callStartTime) / 1000);
+    
+    // Call the complete-call endpoint
+    fetch(`/complete-call/${callId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({
+            duration: callDuration,
+            status: 'completed'
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            // Update wallet balance with the new value from server
+            updateWalletBalance(data.new_balance);
+            console.log('Call completed successfully. New balance:', data.new_balance);
+            
+            // Only clear state on successful completion
+            clearCallState();
+        } else {
+            console.error('Failed to complete call:', data.message);
+            // Show error to user if needed
+            if (data.redirect) {
+                window.location.href = data.redirect;
+            } else {
+                // Retry after a delay if no redirect
+                setTimeout(() => completeCall(), 2000);
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error completing call:', error);
+        // Retry after a delay
+        setTimeout(() => completeCall(), 2000);
+    });
+}
+
+function clearCallState() {
+    // Only clear state after successful completion
+    localStorage.removeItem('pendingCall');
+    callInProgress = false;
+    callId = null;
+    callStartTime = null;
+}
+
+function checkPendingCalls() {
+    // Check for any pending calls in localStorage
+    const pendingCall = localStorage.getItem('pendingCall');
+    if (pendingCall) {
+        try {
+            const callInfo = JSON.parse(pendingCall);
+            const now = Date.now();
+            const callStartTime = callInfo.startTime;
+            const callAge = now - callStartTime;
+            
+            // If the call was started recently (within last 30 minutes), complete it
+            if (callAge < MAX_CALL_DURATION) {
+                console.log('Found pending call, completing...');
+                callId = callInfo.callId;
+                callStartTime = callInfo.startTime;
+                callInProgress = true;
+                completeCall();
+            } else {
+                // Clear old pending call
+                localStorage.removeItem('pendingCall');
+            }
+        } catch (e) {
+            console.error('Error processing pending call:', e);
+            localStorage.removeItem('pendingCall');
+        }
+    }
+}
+
+function handleShare(profileUrl) {
+    if (navigator.share) {
+        navigator.share({
+            title: 'Check out this profile!',
+            text: 'Check out this amazing freelancer on Fuetime!',
+            url: profileUrl
+        })
+            .then(() => console.log('Successfully shared'))
+            .catch((error) => console.log('Error sharing:', error));
+    } else {
+        // Fallback for browsers that don't support Web Share API
+        const tempInput = document.createElement('input');
+        tempInput.value = profileUrl;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+        
+        alert('Profile URL copied to clipboard!');
+    }
+}
+function editProfileDetails() {
+    window.location.href = '{{ url_for("edit_profile") }}';
+}
+</script>
+<script>
+// Initialize profile functionality when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize progress bars
+    document.querySelectorAll('.skill-progress').forEach(progressBar => {
+        const width = progressBar.getAttribute('data-width');
+        if (width) {
+            progressBar.style.width = width + '%';
+        }
+    });
+    
+    // Initialize profile scripts
+    initializeProfileScripts();
+});
+</script>
+{% endblock %}

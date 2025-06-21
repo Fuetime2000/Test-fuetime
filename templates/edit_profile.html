@@ -1,0 +1,496 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block content %}
+<style>
+    .edit-profile-container {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        min-height: calc(100vh - 60px);
+        padding: 2rem 0;
+    }
+    .profile-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+    .profile-card:hover {
+        transform: translateY(-5px);
+    }
+    .form-control, .form-select {
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+    .form-control:focus, .form-select:focus {
+        box-shadow: 0 0 0 0.25rem rgba(13,110,253,0.15);
+        border-color: #0d6efd;
+    }
+    .input-group-text {
+        border-radius: 8px;
+        background-color: #f8f9fa;
+    }
+    .btn-save {
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .form-section {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+    }
+    .section-title {
+        color: #0d6efd;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #0d6efd;
+    }
+    .help-text {
+        color: #6c757d;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+    @media (max-width: 768px) {
+        .edit-profile-container {
+            padding: 1rem 0;
+        }
+        .profile-card {
+            border-radius: 10px;
+        }
+    }
+</style>
+
+<div class="edit-profile-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10">
+                <div class="profile-card">
+                    <div class="card-body p-4 p-md-5">
+                        <h2 class="text-center mb-4">Edit Your Profile</h2>
+                        <p class="text-muted text-center mb-5">Update your information to make your profile stand out</p>
+
+                        <form method="POST" action="{{ url_for('edit_profile') }}" class="needs-validation" novalidate enctype="multipart/form-data">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                            <!-- Basic Information Section -->
+                            <div class="form-section">
+                                <h4 class="section-title">Basic Information</h4>
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <label for="full_name" class="form-label">Full Name</label>
+                                        <input type="text" class="form-control" id="full_name" name="full_name" 
+                                               value="{{ user.full_name }}" required>
+                                        <div class="help-text">This name will be visible to other users</div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label for="email" class="form-label">Email Address</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                            <input type="email" class="form-control" id="email" name="email" 
+                                                   value="{{ user.email }}" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label for="phone" class="form-label">Phone Number</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                            <input type="tel" class="form-control" id="phone" name="phone" 
+                                                   value="{{ user.phone }}" required>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Professional Information Section -->
+                            <div class="form-section">
+                                <h4 class="section-title">Professional Information</h4>
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <label for="education" class="form-label">Education Background</label>
+                                        <textarea class="form-control" id="education" name="education" 
+                                                  rows="3" placeholder="Enter your educational qualifications">{{ user.education }}</textarea>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label for="experience" class="form-label">Work Experience</label>
+                                        <textarea class="form-control" id="experience" name="experience" 
+                                                  rows="3" placeholder="Describe your work experience">{{ user.experience }}</textarea>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label for="skills" class="form-label">Skills</label>
+                                        <input type="text" class="form-control" id="skills" name="skills" 
+                                               value="{{ user.skills }}" placeholder="e.g., Python, JavaScript, Project Management">
+                                        <div class="help-text">Separate multiple skills with commas</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Location and Personal Details Section -->
+                            <div class="form-section">
+                                <h4 class="section-title">Location & Personal Details</h4>
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <label for="current_location" class="form-label">Current Location</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                                            <input type="text" class="form-control" id="current_location" 
+                                                   name="current_location" value="{{ user.current_location }}" readonly>
+                                            <button type="button" class="btn btn-outline-primary" id="get-location-btn">
+                                                <i class="fas fa-location-arrow"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label for="date_of_birth" class="form-label">Date of Birth</label>
+                                        <input type="date" class="form-control" id="date_of_birth" 
+                                               name="date_of_birth" value="{{ user.date_of_birth.strftime('%Y-%m-%d') if user.date_of_birth else '' }}">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Payment Information Section -->
+                            <div class="form-section">
+                                <h4 class="section-title">Payment Information</h4>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="payment_type" class="form-label">Payment Type</label>
+                                        <select class="form-select" id="payment_type" name="payment_type">
+                                            <option value="">Select payment type</option>
+                                            <option value="hour" {% if user.payment_type == 'hour' %}selected{% endif %}>hour</option>
+                                            <option value="daily" {% if user.payment_type == 'daily' %}selected{% endif %}>daily</option>
+                                            <option value="Month" {% if user.payment_type == 'Month' %}selected{% endif %}>month</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label for="payment_charge" class="form-label">Payment Rate (₹)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">₹</span>
+                                            <input type="number" class="form-control" id="payment_charge" 
+                                                   name="payment_charge" value="{{ user.payment_charge if user.payment_charge else '' }}" 
+                                                   step="0.01" min="0">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="text-center mt-4">
+                                <button type="submit" class="btn btn-primary btn-save me-2">
+                                    <i class="fas fa-save me-2"></i>Save Changes
+                                </button>
+                                <a href="{{ url_for('profile', user_id=current_user.id) }}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times me-2"></i>Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Form validation and WebSocket handling
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('.needs-validation');
+    const locationBtn = document.getElementById('get-location-btn');
+    const locationInput = document.getElementById('current_location');
+    
+    // Initialize Socket.IO with reconnection
+    function initializeSocket() {
+        if (typeof io !== 'undefined') {
+            const socket = io({
+                reconnection: true,
+                reconnectionAttempts: 5,
+                reconnectionDelay: 1000,
+                timeout: 20000
+            });
+            
+            socket.on('connect', function() {
+                console.log('Socket.IO connected');
+                if (socket.connected) {
+                    socket.emit('join', { room: 'user_{{ current_user.id }}' });
+                }
+            });
+            
+            socket.on('disconnect', function() {
+                console.log('Socket.IO disconnected');
+            });
+            
+            socket.on('connect_error', function(error) {
+                console.error('Socket.IO connection error:', error);
+            });
+            
+            // Listen for profile update events
+            socket.on('profile_updated', function(data) {
+                if (data && data.success) {
+                    console.log('Profile update received:', data);
+                    
+                    // Update profile image if it was changed
+                    if (data.photo) {
+                        const profileImages = document.querySelectorAll('.profile-image');
+                        profileImages.forEach(img => {
+                            if (img.src !== data.photo) {
+                                img.src = data.photo;
+                            }
+                        });
+                    }
+                    
+                    // Update profile name if it was changed
+                    if (data.full_name) {
+                        const nameElements = document.querySelectorAll('.profile-name');
+                        nameElements.forEach(el => {
+                            if (el.textContent !== data.full_name) {
+                                el.textContent = data.full_name;
+                            }
+                        });
+                    }
+                }
+            });
+            
+            return socket;
+        } else {
+            console.warn('Socket.IO not available');
+            return null;
+        }
+    }
+    
+    // Initialize socket connection
+    const socket = initializeSocket();
+    
+    form.addEventListener('submit', async function(event) {
+        event.preventDefault();
+        
+        if (!form.checkValidity()) {
+            event.stopPropagation();
+            form.classList.add('was-validated');
+            return false;
+        }
+        
+        // Show loading state
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
+        
+        try {
+            // Create FormData object
+            const formData = new FormData(form);
+            
+            // Send form data via AJAX
+            const response = await fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                },
+                credentials: 'same-origin'
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to update profile');
+            }
+            
+            // Show success message
+            showToast('Success', data.message || 'Profile updated successfully!', 'success');
+            
+            // If we have a redirect URL, go there after a short delay
+            if (data.redirect) {
+                setTimeout(() => {
+                    window.location.href = data.redirect;
+                }, 1500);
+            }
+            
+        } catch (error) {
+            console.error('Error:', error);
+            // Show error message to user
+            showToast('Error', error.message || 'Failed to update profile. Please try again.', 'danger');
+        } finally {
+            // Reset button state
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
+        }
+    });
+
+    // Function to show toast notifications
+    function showToast(title, message, type = 'info') {
+        // Create toast container if it doesn't exist
+        let toastContainer = document.getElementById('toast-container');
+        if (!toastContainer) {
+            toastContainer = document.createElement('div');
+            toastContainer.id = 'toast-container';
+            toastContainer.style.position = 'fixed';
+            toastContainer.style.top = '20px';
+            toastContainer.style.right = '20px';
+            toastContainer.style.zIndex = '9999';
+            document.body.appendChild(toastContainer);
+        }
+
+        // Create toast element
+        const toast = document.createElement('div');
+        toast.className = `toast show align-items-center text-white bg-${type} border-0 mb-2`;
+        toast.role = 'alert';
+        toast.ariaLive = 'assertive';
+        toast.ariaAtomic = 'true';
+        
+        // Set toast content
+        toast.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">
+                    <strong>${title}</strong><br>
+                    ${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        `;
+        
+        // Add toast to container
+        toastContainer.appendChild(toast);
+        
+        // Initialize Bootstrap toast
+        const bsToast = new bootstrap.Toast(toast, { 
+            autohide: true,
+            delay: 5000
+        });
+        
+        // Show the toast
+        bsToast.show();
+        
+        // Remove toast after it's hidden
+        toast.addEventListener('hidden.bs.toast', function() {
+            toast.remove();
+            // Remove container if no more toasts
+            if (toastContainer && toastContainer.children.length === 0) {
+                toastContainer.remove();
+            }
+        });
+    }
+
+    // Format phone number as user types
+    const phoneInput = document.getElementById('phone');
+    if (phoneInput) {
+        phoneInput.addEventListener('input', function(e) {
+            let x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
+            if (x) {
+                e.target.value = !x[2] ? x[1] : x[1] + '-' + x[2] + (x[3] ? '-' + x[3] : '');
+            }
+        });
+    }
+    
+    // Initialize Bootstrap components
+    function initializeBootstrapComponents() {
+        // Initialize tooltips
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+            try {
+                // Clean up any existing tooltips first
+                const existingTooltip = bootstrap.Tooltip.getInstance(tooltipTriggerEl);
+                if (existingTooltip) {
+                    existingTooltip.dispose();
+                }
+                // Initialize new tooltip
+                new bootstrap.Tooltip(tooltipTriggerEl);
+            } catch (e) {
+                console.error('Error initializing tooltip:', e);
+            }
+        });
+        
+        // Initialize modals
+        const modalElement = document.getElementById('profileModal');
+        if (modalElement) {
+            try {
+                // Clean up any existing modal first
+                const existingModal = bootstrap.Modal.getInstance(modalElement);
+                if (existingModal) {
+                    existingModal.dispose();
+                }
+                // Initialize new modal with default options
+                new bootstrap.Modal(modalElement, {
+                    backdrop: true,
+                    keyboard: true,
+                    focus: true
+                });
+            } catch (e) {
+                console.error('Error initializing modal:', e);
+            }
+        }
+    }
+    
+    // Initialize Bootstrap components when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeBootstrapComponents);
+    } else {
+        initializeBootstrapComponents();
+    }
+    
+    // Socket initialization is now handled at the top of the file
+
+    // Handle location button click
+    locationBtn.addEventListener('click', function() {
+        if (navigator.geolocation) {
+            locationBtn.disabled = true;
+            locationBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    // Get location name from coordinates using reverse geocoding
+                    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.coords.latitude}&lon=${position.coords.longitude}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            let address = data.address;
+                            let location = '';
+                            
+                            // Create a readable location string
+                            if (address.city || address.town) {
+                                location = address.city || address.town;
+                                if (address.state) {
+                                    location += `, ${address.state}`;
+                                }
+                            } else if (address.state) {
+                                location = address.state;
+                            }
+                            
+                            locationInput.value = location;
+                            locationBtn.disabled = false;
+                            locationBtn.innerHTML = '<i class="fas fa-location-arrow"></i>';
+                        })
+                        .catch(error => {
+                            console.error('Error getting location name:', error);
+                            locationBtn.disabled = false;
+                            locationBtn.innerHTML = '<i class="fas fa-location-arrow"></i>';
+                            alert('Failed to get location name. Please try again.');
+                        });
+                },
+                function(error) {
+                    console.error('Geolocation error:', error);
+                    locationBtn.disabled = false;
+                    locationBtn.innerHTML = '<i class="fas fa-location-arrow"></i>';
+                    alert('Failed to get your location. Please make sure location access is enabled.');
+                }
+            );
+        } else {
+            alert('Geolocation is not supported by your browser.');
+        }
+    });
+});
+</script>
+{% endblock %}

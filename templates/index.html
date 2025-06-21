@@ -1,0 +1,322 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _('Home') }}{% endblock %}
+
+{% block content %}
+<!-- Toast Message -->
+<div id="location-toast" class="toast"></div>
+<!-- Location Filter Button -->
+<style>
+.location-filter {
+    position: fixed;
+    bottom: 15px;
+    right: 15px;
+    z-index: 500;
+}
+
+.location-btn {
+    background: rgba(255, 255, 255, 0.95);
+    border: 3px solid #e74c3c;
+    border-radius: 50%;
+    padding: 12px;
+    cursor: pointer;
+    position: fixed;
+    bottom: 15px;
+    right: 15px;
+    z-index: 500;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+}
+
+.location-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.location-btn i {
+    font-size: 28px;
+    color: #e74c3c;
+    display: block;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.location-btn i {
+    animation: pulse 2s infinite;
+}
+
+.location-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.location-tooltip {
+    position: absolute;
+    bottom: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #2c3e50;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+}
+
+.location-btn:hover .location-tooltip {
+    opacity: 1;
+}
+
+#location-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 24px;
+    height: 24px;
+    border: 3px solid #e74c3c;
+    border-right-color: transparent;
+    border-radius: 50%;
+    display: none;
+}
+
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(44, 62, 80, 0.95);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    display: none;
+    z-index: 1050;
+}
+
+#location-toast {
+    bottom: 20px;
+    top: auto; /* Override the top property from .toast */
+    left: 50%;
+    right: auto; /* Override the right property from .toast */
+    transform: translateX(-50%);
+}
+</style>
+
+<div class="location-filter">
+    <button type="button" class="location-btn" onclick="toggleLocationFilter()">
+        <i class="fas fa-location-dot"></i>
+        <div class="location-tooltip">{{ _('Filter by location') }}</div>
+        <div id="location-spinner" class="spinner-border"></div>
+    </button>
+</div>
+
+<div class="toast" id="location-toast">
+    {{ _('No users found in this area') }}
+</div>
+<div class="container mt-4">
+    <!-- Search Section -->
+    <div class="container-fluid px-0 mb-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-3">
+                        <form action="{{ url_for('search') }}" method="GET" class="d-flex">
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0 px-3">
+                                    <i class="fas fa-search text-muted"></i>
+                                </span>
+                                <input type="text" class="form-control border-start-0 search-input" id="search-input" name="query" 
+                                       value="{{ request.args.get('query', '') }}" 
+                                       placeholder="{{ _('Search by name, skills, or location') }}" 
+                                       required 
+                                       style="box-shadow: none;">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search me-2"></i>{{ _('Search') }}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Section -->
+    <div class="row" id="users-container">
+        {% if users and users|length > 0 %}
+            {% for user in users %}
+                {% if user and user.is_active and user.user_type == 'worker' and not user.is_admin %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    {% include 'components/profile_card.html' %}
+                </div>
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> {{ _('No users found matching your criteria.') }}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Loading spinner -->
+    <div id="loading-spinner" class="text-center d-none mb-4">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+</div>
+<!-- Toast Notification -->
+<div class="toast-container">
+    <div id="noUsersToast" class="custom-toast">
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+'use strict';
+
+let isLocationFilterActive = false;
+let currentPage = 1;
+let isLoading = false;
+let hasMore = true;
+
+function showToast(message, duration) {
+    if (!duration) duration = 3000;
+    var toast = document.getElementById('location-toast');
+    toast.textContent = message;
+    toast.style.display = 'block';
+    setTimeout(function() {
+        toast.style.display = 'none';
+    }, duration);
+}
+
+async function loadMoreUsers() {
+    if (isLoading || !hasMore) return;
+    
+    isLoading = true;
+    document.getElementById('loading-spinner').classList.remove('d-none');
+    
+    try {
+        const nextPage = currentPage + 1;
+        // Get current URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        // Update page parameter or add it if it doesn't exist
+        urlParams.set('page', nextPage);
+        
+        const response = await fetch(`/?${urlParams.toString()}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        
+        if (data.html) {
+            const container = document.getElementById('users-container');
+            container.insertAdjacentHTML('beforeend', data.html);
+            currentPage = nextPage;
+            hasMore = data.has_more;
+        } else {
+            hasMore = false;
+        }
+    } catch (error) {
+        console.error('Error loading more users:', error);
+        showToast('Error loading more users. Please try again.', 3000);
+    } finally {
+        isLoading = false;
+        document.getElementById('loading-spinner').classList.add('d-none');
+    }
+}
+
+// Infinite scroll handler
+function handleScroll() {
+    const spinner = document.getElementById('loading-spinner');
+    const rect = spinner.getBoundingClientRect();
+    
+    // Load more when spinner is 300px from viewport bottom
+    if (rect.top <= window.innerHeight + 300) {
+        loadMoreUsers();
+    }
+}
+
+// Initialize infinite scroll
+window.addEventListener('scroll', handleScroll);
+// Initial load in case the page is too short
+handleScroll();
+
+async function toggleLocationFilter() {
+    const button = document.querySelector('.location-btn');
+    const icon = button.querySelector('i');
+    const spinner = document.getElementById('location-spinner');
+    const resultsContainer = document.querySelector('.row');
+
+    if (!isLocationFilterActive) {
+        if (navigator.geolocation) {
+            try {
+                // Show loading state
+                icon.style.display = 'none';
+                spinner.style.display = 'block';
+                button.disabled = true;
+
+                // Get user's location
+                var position = await new Promise(function(resolve, reject) {
+                    navigator.geolocation.getCurrentPosition(
+                        resolve,
+                        reject,
+                        {
+                            enableHighAccuracy: true,
+                            timeout: 5000,
+                            maximumAge: 0
+                        }
+                    );
+                });
+
+                // Call backend API
+                var lat = position.coords.latitude;
+                var lng = position.coords.longitude;
+                var url = '/filter-by-location?lat=' + encodeURIComponent(lat) + '&lng=' + encodeURIComponent(lng);
+                var response = await fetch(url);
+                var data = await response.json();
+
+                if (data.success) {
+                    resultsContainer.innerHTML = data.html;
+                    if (data.html.trim() === '') {
+                        showToast("{{ _('No users found in this area') }}");
+                    }
+                    isLocationFilterActive = true;
+                } else {
+                    throw new Error(data.error || "{{ _('Failed to filter users by location') }}");
+                }
+            } catch (error) {
+                console.error('Location error:', error);
+                showToast(error.message || "{{ _('Could not get your location. Please try again.') }}");
+            } finally {
+                // Reset UI
+                spinner.style.display = 'none';
+                icon.style.display = 'block';
+                button.disabled = false;
+            }
+        } else {
+            showToast("{{ _('Geolocation is not supported by your browser.') }}");
+        }
+    } else {
+        // Reset to show all users
+        window.location.reload();
+    }
+}
+</script>
+{% endblock %}

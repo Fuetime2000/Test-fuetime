@@ -1,0 +1,78 @@
+{% extends "admin/base.html" %}
+
+{% block admin_title %}{{ _('Transaction History') }}{% endblock %}
+
+{% block admin_content %}
+<div class="card shadow mb-4 rounded-lg">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center bg-gradient-primary">
+        <h6 class="m-0 font-weight-bold text-white">{{ _('Transaction Records') }}</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped" id="transactionsTable">
+                <thead class="thead-dark">
+                    <tr>
+                        <th class="text-center">{{ _('ID') }}</th>
+                        <th>{{ _('User') }}</th>
+                        <th class="text-right">{{ _('Amount') }}</th>
+                        <th>{{ _('Description') }}</th>
+                        <th class="text-center">{{ _('Date') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in transactions %}
+                    <tr>
+                        <td class="text-center">{{ transaction.id }}</td>
+                        <td>
+                            <a href="{{ url_for('admin_user_detail', username=transaction.user.username) }}" class="text-primary font-weight-bold">
+                                {{ transaction.user.full_name }}
+                            </a>
+                        </td>
+                        <td class="text-right font-weight-bold {% if transaction.amount > 0 %}text-success{% else %}text-danger{% endif %}">
+                            ₹{{ "%.2f"|format(transaction.amount) }}
+                        </td>
+                        <td class="text-muted">{{ transaction.description }}</td>
+                        <td class="text-center"><span class="badge badge-light">{{ transaction.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<style>
+    .table th { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    .table td { vertical-align: middle; font-size: 0.95rem; }
+    .table-hover tbody tr:hover { background-color: rgba(0,0,0,.075); transition: background-color 0.2s ease-in-out; }
+    .badge { font-size: 0.85rem; padding: 0.4em 0.6em; }
+    @media (max-width: 768px) {
+        .table td, .table th { padding: 0.5rem; }
+        .badge { font-size: 0.75rem; }
+    }
+</style>
+<script>
+$(document).ready(function() {
+    $('#transactionsTable').DataTable({
+        "order": [[0, "desc"]],
+        "language": {
+            "search": "{{ _('Search') }}:",
+            "lengthMenu": "{{ _('Show _MENU_ entries') }}",
+            "info": "{{ _('Showing _START_ to _END_ of _TOTAL_ entries') }}",
+            "infoEmpty": "{{ _('Showing 0 to 0 of 0 entries') }}",
+            "infoFiltered": "{{ _('(filtered from _MAX_ total entries)') }}",
+            "emptyTable": "{{ _('No data available in table') }}",
+            "zeroRecords": "{{ _('No matching records found') }}",
+            "paginate": {
+                "first": "{{ _('First') }}",
+                "last": "{{ _('Last') }}",
+                "next": "{{ _('Next') }}",
+                "previous": "{{ _('Previous') }}"
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,417 @@
+{% extends "base.html" %}
+
+{% block styles %}
+<style>
+:root {
+    --primary-color: #4f46e5;
+    --primary-dark: #4338ca;
+    --primary-light: #818cf8;
+    --primary-lighter: #e0e7ff;
+    --success-color: #10b981;
+    --danger-color: #ef4444;
+    --warning-color: #f59e0b;
+    --surface-color: rgba(255, 255, 255, 0.9);
+    --background-color: #f0f4ff;
+    --text-primary: #1e1b4b;
+    --text-secondary: #4b5563;
+    --text-light: #6b7280;
+    --border-color: rgba(226, 232, 240, 0.7);
+    --input-bg: rgba(255, 255, 255, 0.8);
+    --input-border: rgba(203, 213, 225, 0.7);
+    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    --card-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --border-radius: 16px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body {
+    background: linear-gradient(135deg, #f0f4ff 0%, #e6f0ff 100%);
+    min-height: 100vh;
+}
+
+.help-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+}
+
+.help-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    position: relative;
+    padding: 2rem 0;
+}
+
+.help-header h1 {
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    position: relative;
+    display: inline-block;
+}
+
+.help-header h1::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+    border-radius: 2px;
+}
+
+.help-header p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.help-card {
+    background: var(--surface-color);
+    border-radius: var(--border-radius);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: var(--card-shadow);
+    transition: var(--transition);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+.help-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--card-hover);
+    border-color: rgba(79, 70, 229, 0.3);
+}
+
+.accordion-button {
+    font-weight: 600;
+    font-size: 1.1rem;
+    padding: 1.25rem 1.5rem;
+    color: var(--text-primary);
+    background-color: transparent;
+    border: none;
+    transition: var(--transition);
+}
+
+.accordion-button:not(.collapsed) {
+    color: var(--primary-color);
+    background-color: rgba(99, 102, 241, 0.05);
+    box-shadow: none;
+}
+
+.accordion-button:focus {
+    box-shadow: none;
+    border-color: transparent;
+}
+
+.accordion-button::after {
+    background-size: 1.25rem;
+    transition: var(--transition);
+}
+
+.accordion-body {
+    padding: 1.5rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+}
+
+.accordion-body h5 {
+    color: var(--text-primary);
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.accordion-body h5:first-child {
+    margin-top: 0;
+}
+
+.accordion-body h5 i {
+    color: var(--primary-color);
+}
+
+.accordion-body p, .accordion-body ol, .accordion-body ul {
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+}
+
+.accordion-body ul, .accordion-body ol {
+    padding-left: 1.5rem;
+}
+
+.accordion-body li {
+    margin-bottom: 0.5rem;
+}
+
+.support-form .form-control, 
+.support-form .form-select,
+.support-form .form-control:focus {
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    transition: var(--transition);
+    box-shadow: none;
+}
+
+.support-form .form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.support-form label {
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.btn-whatsapp {
+    background: #25D366;
+    color: white;
+    border: none;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.btn-whatsapp:hover {
+    background: #128C7E;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(18, 140, 126, 0.3);
+}
+
+.support-hours {
+    font-size: 0.9rem;
+    color: var(--text-light);
+    margin-top: 0.5rem;
+    display: block;
+}
+
+/* Responsive Styles */
+@media (max-width: 767.98px) {
+    .help-container {
+        padding: 1.5rem 1rem;
+    }
+    
+    .help-header {
+        margin-bottom: 2rem;
+        padding: 1rem 0;
+    }
+    
+    .help-header h1 {
+        font-size: 1.8rem;
+    }
+    
+    .accordion-button {
+        font-size: 1rem;
+        padding: 1rem 1.25rem;
+    }
+    
+    .accordion-body {
+        padding: 1.25rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .help-container {
+        padding: 1rem 0.75rem;
+    }
+    
+    .help-header h1 {
+        font-size: 1.6rem;
+    }
+    
+    .help-header p {
+        font-size: 1rem;
+    }
+    
+    .btn-whatsapp {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="help-container">
+    <header class="help-header">
+        <h1>How Can We Help You?</h1>
+        <p>Find answers to common questions or contact our support team for personalized assistance.</p>
+    </header>
+    
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="accordion" id="helpAccordion">
+        <!-- Getting Started -->
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button d-flex align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#gettingStarted">
+                    <i class="fas fa-rocket me-3" style="color: var(--primary-color);"></i>
+                    Getting Started
+                </button>
+            </h2>
+            <div id="gettingStarted" class="accordion-collapse collapse show" data-bs-parent="#helpAccordion">
+                <div class="accordion-body">
+                    <h5>How to Register</h5>
+                    <p>1. Click on the "Register" button in the navigation bar</p>
+                    <p>2. Fill in your personal and professional details</p>
+                    <p>3. Submit the form to create your profile</p>
+                    
+                    <h5>How to Find Workers</h5>
+                    <p>1. Browse through worker profiles on the home page</p>
+                    <p>2. Use the contact buttons to reach out to workers</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Communication -->
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed d-flex align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#communication">
+                    <i class="fas fa-comments me-3" style="color: var(--primary-color);"></i>
+                    Communication
+                </button>
+            </h2>
+            <div id="communication" class="accordion-collapse collapse" data-bs-parent="#helpAccordion">
+                <div class="accordion-body">
+                    <h5>How to Contact Workers</h5>
+                    <p><i class="fas fa-phone"></i> <strong>Call:</strong> Click the phone icon to call directly</p>
+                    <p><i class="fas fa-comment"></i> <strong>Chat:</strong> Click the message icon to start a conversation</p>
+                    <p><i class="fas fa-share-alt"></i> <strong>Share:</strong> Click the share icon to share a profile</p>
+                    
+                    <h5>Using the Chat System</h5>
+                    <p>1. Click the message icon on any worker's profile</p>
+                    <p>2. Type your message in the chat box</p>
+                    <p>3. Press enter or click send to send your message</p>
+                    <p>4. You'll receive notifications for new messages</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Account Management -->
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed d-flex align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#account">
+                    <i class="fas fa-user-cog me-3" style="color: var(--primary-color);"></i>
+                    Account Management
+                </button>
+            </h2>
+            <div id="account" class="accordion-collapse collapse" data-bs-parent="#helpAccordion">
+                <div class="accordion-body">
+                    <h5>Updating Your Profile</h5>
+                    <p>You can update your profile information at any time by:</p>
+                    <ol>
+                        <li>Logging into your account</li>
+                        <li>Going to your profile settings</li>
+                        <li>Making the necessary changes</li>
+                        <li>Saving your updates</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Support -->
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed d-flex align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#support">
+                    <i class="fas fa-headset me-3" style="color: var(--primary-color);"></i>
+                    Support
+                </button>
+            </h2>
+            <div id="support" class="accordion-collapse collapse" data-bs-parent="#helpAccordion">
+                <div class="accordion-body">
+                    <h5>Need Additional Help?</h5>
+                    <p>If you need further assistance:</p>
+                    <ul>
+                        <li>Send us a message through the messaging system</li>
+                        <li>Check your notifications for important updates</li>
+                        <li>Visit your profile settings to update your information</li>
+                    </ul>
+                    
+                    <div class="mt-5">
+                        <h5 class="mb-3"><i class="fas fa-envelope me-2"></i>Send us a Message</h5>
+                        <div class="help-card p-4">
+                                <form action="{{ url_for('submit_help_request') }}" method="POST">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label for="name" class="form-label">Your Name</label>
+                                            <input type="text" class="form-control" id="name" name="name" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="email" class="form-label">Email Address</label>
+                                            <input type="email" class="form-control" id="email" name="email" required>
+                                        </div>
+                                        <div class="col-12">
+                                            <label for="subject" class="form-label">Subject</label>
+                                            <input type="text" class="form-control" id="subject" name="subject" required>
+                                        </div>
+                                        <div class="col-12">
+                                            <label for="description" class="form-label">How can we help you?</label>
+                                            <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3">
+                                        <button type="reset" class="btn btn-outline-secondary me-md-2">
+                                            <i class="fas fa-undo me-1"></i> Reset
+                                        </button>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-paper-plane me-1"></i> Send Message
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <h5 class="mb-3"><i class="fas fa-search me-2"></i>Track Your Request</h5>
+                        <div class="help-card p-4">
+                                <form action="{{ url_for('track_help_request') }}" method="POST">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <div class="mb-3">
+                                        <label for="ticket_id" class="form-label">Ticket ID</label>
+                                        <input type="text" class="form-control" id="ticket_id" name="ticket_id" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-secondary">Track Request</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 text-center">
+                        <h5 class="mb-3"><i class="fas fa-comment-dots me-2"></i>Need Immediate Help?</h5>
+                        <p class="mb-4">Chat with our support team on WhatsApp for quick assistance.</p>
+                        <a href="https://wa.me/8828763890?text=Hi,%20I%20need%20help%20with%20FueTime" 
+                           target="_blank" 
+                           class="btn-whatsapp">
+                            <i class="fab fa-whatsapp fs-5"></i>
+                            Chat on WhatsApp
+                        </a>
+                        <span class="support-hours">
+                            <i class="far fa-clock me-1"></i> Available Monday to Saturday, 9 AM to 6 PM IST
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

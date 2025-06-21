@@ -1,0 +1,361 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid h-100">
+    <div class="row justify-content-center h-100">
+        <div class="col-12 col-md-10 col-lg-8">
+            <div class="chat-container shadow-lg rounded-3">
+                <!-- Chat Header -->
+                <div class="chat-header p-3">
+                    <div class="d-flex align-items-center">
+                        <div class="position-relative">
+                            {% if receiver.photo %}
+                            <img src="{{ url_for('static', filename='uploads/' + receiver.photo) }}" 
+                                 alt="{{ receiver.full_name }}" class="chat-avatar">
+                            {% else %}
+                            <img src="{{ url_for('static', filename='img/default-avatar.png') }}" 
+                                 alt="Default Avatar" class="chat-avatar">
+                            {% endif %}
+                            <span class="status-dot"></span>
+                        </div>
+                        <div class="ms-3">
+                            <h5 class="mb-0 fw-bold">{{ receiver.full_name }}</h5>
+                            <small class="text-muted">Active Now</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Messages -->
+                <div class="chat-body" id="chat-messages">
+                    {% for message in messages %}
+                    <div class="message-wrapper {% if message.sender_id == current_user.id %}message-sent{% else %}message-received{% endif %}">
+                        <div class="message">
+                            <div class="message-content">
+                                {{ message.content }}
+                            </div>
+                            <div class="message-meta">
+                                <small class="message-time" data-timestamp="{{ message.created_at.timestamp() }}">
+                                    {{ message.created_at.strftime('%I:%M %p | %b %d') }}
+                                </small>
+                                {% if message.sender_id == current_user.id %}
+                                <small class="message-status">
+                                    <i class="fas fa-check-double"></i>
+                                </small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Chat Input -->
+                <div class="chat-footer p-3">
+                    <form method="POST" id="message-form" class="message-form">
+                        <div class="input-group">
+                            <button type="button" class="btn btn-link text-muted emoji-btn">
+                                <i class="far fa-smile fs-5"></i>
+                            </button>
+                            <input type="text" class="form-control message-input" name="content" 
+                                   placeholder="Type your message..." required>
+                            <button class="btn btn-primary send-btn" type="submit">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+:root {
+    --chat-primary: var(--primary-color);
+    --chat-bg: #f8f9fa;
+    --chat-text: #212529;
+    --chat-muted: #6c757d;
+    --chat-border: #dee2e6;
+    --chat-hover: #e9ecef;
+}
+
+.chat-container {
+    height: calc(100vh - 2rem);
+    background: white;
+    display: flex;
+    flex-direction: column;
+    margin: 1rem 0;
+}
+
+.chat-header {
+    background: white;
+    border-bottom: 1px solid var(--chat-border);
+}
+
+.chat-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.status-dot {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 10px;
+    height: 10px;
+    background: #28a745;
+    border-radius: 50%;
+    border: 2px solid white;
+}
+
+.chat-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+    background: var(--chat-bg);
+    scroll-behavior: smooth;
+}
+
+.message-wrapper {
+    display: flex;
+    margin-bottom: 1rem;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.message {
+    max-width: 75%;
+    position: relative;
+}
+
+.message-sent {
+    justify-content: flex-end;
+}
+
+.message-content {
+    padding: 0.8rem 1rem;
+    border-radius: 1rem;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+.message-sent .message-content {
+    background: var(--chat-bg);
+    color: var(--chat-text);
+    border-bottom-right-radius: 0.25rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border: 1px solid var(--chat-border);
+}
+
+.message-received .message-content {
+    background: white;
+    color: var(--chat-text);
+    border-bottom-left-radius: 0.25rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.message-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+}
+
+.message-time {
+    color: var(--chat-muted);
+    font-size: 0.75rem;
+}
+
+.message-status {
+    color: var(--chat-primary);
+    font-size: 0.75rem;
+}
+
+.chat-footer {
+    background: white;
+    border-top: 1px solid var(--chat-border);
+}
+
+.message-form {
+    position: relative;
+}
+
+.message-input {
+    border: none;
+    padding: 0.75rem;
+    background: var(--chat-bg);
+    border-radius: 1.5rem;
+    padding-left: 3rem;
+    padding-right: 4rem;
+}
+
+.message-input:focus {
+    box-shadow: none;
+    background: var(--chat-hover);
+}
+
+.emoji-btn {
+    position: absolute;
+    left: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    padding: 0.25rem;
+}
+
+.send-btn {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    border-radius: 50%;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.send-btn:hover {
+    transform: translateY(-50%) scale(1.05);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+    .chat-container {
+        height: calc(100vh - 1rem);
+        margin: 0.5rem 0;
+    }
+
+    .message {
+        max-width: 85%;
+    }
+
+    .chat-body {
+        padding: 1rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const chatBody = document.getElementById('chat-messages');
+    const messageForm = document.getElementById('message-form');
+    const messageInput = messageForm.querySelector('.message-input');
+    const emojiBtn = document.querySelector('.emoji-btn');
+
+    // Convert UTC timestamps to local time
+    function updateTimestamps() {
+        const timestampElements = document.querySelectorAll('.message-time');
+        timestampElements.forEach(element => {
+            const timestamp = parseFloat(element.dataset.timestamp);
+            const date = new Date(timestamp * 1000); // Convert to milliseconds
+            
+            const options = {
+                hour: 'numeric',
+                minute: 'numeric',
+                hour12: true,
+            };
+            
+            // Add date if not today
+            const today = new Date();
+            if (date.toDateString() !== today.toDateString()) {
+                options.month = 'short';
+                options.day = 'numeric';
+                if (date.getFullYear() !== today.getFullYear()) {
+                    options.year = 'numeric';
+                }
+            }
+            
+            const formattedTime = new Intl.DateTimeFormat('en-US', options).format(date);
+            element.textContent = formattedTime;
+        });
+    }
+
+    // Update timestamps initially and every minute
+    updateTimestamps();
+    setInterval(updateTimestamps, 60000);
+
+    // Scroll to bottom initially
+    scrollToBottom();
+
+    // Handle message submission
+    messageForm.addEventListener('submit', function(e) {
+        const content = messageInput.value.trim();
+        if (!content) {
+            e.preventDefault();
+            return;
+        }
+
+        // Add loading state
+        const sendBtn = this.querySelector('.send-btn');
+        sendBtn.disabled = true;
+        sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+        // Reset after submission
+        setTimeout(() => {
+            sendBtn.disabled = false;
+            sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
+            scrollToBottom();
+            updateTimestamps(); // Update timestamps after new message
+        }, 100);
+    });
+
+    // Auto-resize input field
+    messageInput.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+    });
+
+    // Emoji button click handler (placeholder)
+    emojiBtn.addEventListener('click', function() {
+        // Add emoji picker functionality here
+        alert('Emoji picker coming soon!');
+    });
+
+    // Handle file paste events
+    messageInput.addEventListener('paste', function(e) {
+        const items = e.clipboardData.items;
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+                // Handle image paste here
+                e.preventDefault();
+                alert('Image upload coming soon!');
+                break;
+            }
+        }
+    });
+
+    // Smooth scroll to bottom
+    function scrollToBottom() {
+        chatBody.scrollTo({
+            top: chatBody.scrollHeight,
+            behavior: 'smooth'
+        });
+    }
+
+    // Detect new messages and scroll
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.addedNodes.length) {
+                scrollToBottom();
+                updateTimestamps(); // Update timestamps when new messages are added
+            }
+        });
+    });
+
+    observer.observe(chatBody, {
+        childList: true,
+        subtree: true
+    });
+});
+</script>
+{% endblock %}

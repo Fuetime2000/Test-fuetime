@@ -1,0 +1,611 @@
+{% extends "base.html" %}
+
+{% block title %}Premium Dashboard - FueTime{% endblock %}
+
+{% block styles %}
+<style>
+    :root {
+        --primary-color: #4f46e5;
+        --primary-light: #818cf8;
+        --secondary-color: #7c3aed;
+        --accent-color: #6366f1;
+        --dark: #1e1b4b;
+        --light-bg: #f8fafc;
+        --card-bg: rgba(255, 255, 255, 0.9);
+        --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        --card-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        --border-radius: 16px;
+    }
+
+    body {
+        background: linear-gradient(135deg, #f0f4ff 0%, #e6f0ff 100%);
+        color: #1e293b;
+        min-height: 100vh;
+    }
+
+    .dashboard-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        border-radius: var(--border-radius);
+        padding: 2.5rem 2rem;
+        margin: -1.5rem -1.5rem 2rem -1.5rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+    
+    .dashboard-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: rotate 20s linear infinite;
+        pointer-events: none;
+    }
+    
+    @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .stat-card {
+        background: var(--card-bg);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: var(--border-radius);
+        transition: var(--transition);
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+        margin-bottom: 1.5rem;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--card-hover);
+        border-color: rgba(79, 70, 229, 0.3);
+    }
+
+    .stat-card .card-body {
+        position: relative;
+        z-index: 2;
+    }
+
+    .stat-card .icon-bg {
+        position: absolute;
+        right: 20px;
+        top: 20px;
+        font-size: 3.5rem;
+        opacity: 0.1;
+        z-index: 1;
+        line-height: 1;
+    }
+    
+    .stat-card h6 {
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+    }
+    
+    .stat-card h2 {
+        font-size: 1.75rem;
+        font-weight: 600;
+    }
+    
+    .stat-card .card-body {
+        padding: 1.5rem;
+    }
+
+    .activity-card, .saved-workers-card, .messages-card {
+        background: var(--card-bg);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        transition: var(--transition);
+        height: 100%;
+        margin-bottom: 1.5rem;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+    
+    .activity-card:hover, .saved-workers-card:hover, .messages-card:hover {
+        border-color: rgba(79, 70, 229, 0.3);
+        box-shadow: var(--card-hover);
+    }
+    
+    .table th, .table td {
+        padding: 0.75rem 1rem;
+        vertical-align: middle;
+    }
+
+    .activity-card:hover, .saved-workers-card:hover, .messages-card .card {
+        box-shadow: var(--card-hover);
+    }
+
+    .card-header {
+        background: transparent;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        font-weight: 600;
+        padding: 1.25rem 1.5rem;
+    }
+
+    .table th {
+        border-top: none;
+        font-weight: 600;
+        color: #6c757d;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+    }
+
+    .badge {
+        padding: 0.5em 0.8em;
+        font-weight: 500;
+    }
+
+    .list-group-item {
+        border: none;
+        border-bottom: 1px solid rgba(0,0,0,0.03);
+        padding: 1rem 1.25rem;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+    }
+    
+    .list-group-item img {
+        flex-shrink: 0;
+    }
+
+    .list-group-item:hover {
+        background-color: rgba(67, 97, 238, 0.05);
+        transform: translateX(5px);
+    }
+
+    .btn-outline-primary {
+        border-width: 2px;
+        font-weight: 500;
+        padding: 0.375rem 1rem;
+        white-space: nowrap;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 1199.98px) {
+        .dashboard-header {
+            padding: 2rem 1.5rem;
+        }
+        
+        .stat-card h2 {
+            font-size: 1.75rem;
+        }
+    }
+
+    @media (max-width: 991.98px) {
+        .dashboard-header {
+            margin: -1rem -1rem 1.5rem -1rem;
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+        }
+        
+        .stat-card {
+            margin-bottom: 1rem;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .dashboard-header {
+            text-align: center;
+            padding: 2rem 1rem;
+            margin: -0.5rem -0.5rem 1.5rem -0.5rem;
+        }
+        
+        .stat-card {
+            height: auto;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-card .card-body {
+            padding: 1.5rem;
+        }
+        
+        .stat-card h2 {
+            font-size: 1.75rem;
+        }
+        
+        .stat-card .icon-bg {
+            font-size: 2.5rem;
+            top: 20px;
+            right: 20px;
+        }
+        
+        .card-header {
+            padding: 1.25rem 1.5rem;
+        }
+        
+        .card-header h5 {
+            font-size: 1.1rem;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+        
+        .table-responsive {
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+        
+        .table th, 
+        .table td {
+            padding: 0.75rem;
+            white-space: nowrap;
+        }
+    }
+    
+    @media (max-width: 575.98px) {
+        .dashboard-header {
+            padding: 1.75rem 1rem;
+            margin: -0.5rem -0.5rem 1.5rem -0.5rem;
+        }
+        
+        .stat-card h2 {
+            font-size: 1.5rem;
+        }
+        
+        .stat-card .icon-bg {
+            font-size: 2.25rem;
+        }
+        
+        .card-header {
+            flex-direction: column;
+            gap: 0.75rem;
+            align-items: flex-start;
+        }
+        
+        .card-header .btn {
+            width: 100%;
+            margin-top: 0.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4 px-3 px-md-4">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h2 mb-2">Welcome back, {{ current_user.full_name }}!</h1>
+                <p class="mb-0 opacity-75">Here's what's happening with your business today</p>
+            </div>
+            <div class="d-none d-md-block">
+                <span class="badge bg-white text-primary p-2">Premium Member</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Quick Stats -->
+        <div class="col-12 col-md-6 col-lg-3">
+            <div class="stat-card">
+                <div class="card-body">
+                    <span class="icon-bg">💰</span>
+                    <h6 class="text-uppercase text-muted mb-2">Wallet Balance</h6>
+                    <h2 class="mb-0">₹{{ "%0.2f"|format(wallet_balance|float) }}</h2>
+                    <a href="{{ url_for('wallet') }}" class="btn btn-sm btn-outline-primary mt-2">Add Money</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-12 col-md-6 col-lg-3">
+            <div class="stat-card">
+                <div class="card-body">
+                    <span class="icon-bg">👥</span>
+                    <h6 class="text-uppercase text-muted mb-2">Viewed users</h6>
+                    <h2 class="mb-0">{{ stats.viewed_workers }}</h2>
+                    <p class="text-success small mb-0 mt-2">
+                        <i class="fas fa-arrow-up me-1"></i> 12% from last month
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-3">
+            <div class="stat-card">
+                <div class="card-body">
+                    <span class="icon-bg">📨</span>
+                    <h6 class="text-uppercase text-muted mb-2">Contact Requests</h6>
+                    <h2 class="mb-0">{{ stats.contact_requests }}</h2>
+                    <p class="text-success small mb-0 mt-2">
+                        <i class="fas fa-arrow-up me-1"></i> 8% from last week
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-3">
+            <div class="stat-card">
+                <div class="card-body">
+                    <span class="icon-bg">💬</span>
+                    <h6 class="text-uppercase text-muted mb-2">Active Chats</h6>
+                    <h2 class="mb-0">{{ stats.active_chats }}</h2>
+                    <p class="text-danger small mb-0 mt-2">
+                        <i class="fas fa-arrow-down me-1"></i> 3% from yesterday
+                    </p>
+                </div>
+            </div>
+        </div>
+        <!-- Removed duplicate wallet balance section -->
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="col-12 col-lg-8">
+            <div class="activity-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Recent Activity</h5>
+                    <a href="#" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="border-0">Date</th>
+                                    <th class="border-0">Activity</th>
+                                    <th class="border-0">Worker</th>
+                                    <th class="border-0 text-end">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for activity in recent_activities %}
+                                <tr class="border-bottom">
+                                    <td class="text-nowrap">
+                                        <div class="d-flex align-items-center">
+                                            <i class="far fa-clock text-muted me-2"></i>
+                                            <span>{{ activity.timestamp|timeago }}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-soft-primary rounded p-1 me-2">
+                                                <i class="fas fa-{{ 'check-circle' if 'accepted' in activity.status else 'envelope' }} text-primary"></i>
+                                            </div>
+                                            <span>{{ activity.description }}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('profile', user_id=activity.worker.id) }}" class="d-flex align-items-center text-decoration-none">
+                                            <img src="{{ url_for('static', filename='uploads/' + activity.worker.photo) }}" 
+                                                 class="rounded-circle me-2 worker-avatar" width="24" height="24" 
+                                                 alt="{{ activity.worker.full_name }}" 
+                                                 data-fallback-src="{{ url_for('static', filename='img/default-avatar.png') }}">
+                                            <span class="fw-medium">{{ activity.worker.full_name }}</span>
+                                        </a>
+                                    </td>
+                                    <td class="text-end">
+                                        <span class="badge bg-soft-{{ activity.status_color }} text-{{ activity.status_color }} p-2">
+                                            <i class="fas fa-circle small me-1"></i>
+                                            {{ activity.status|title }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Saved Workers -->
+        <div class="col-12 col-lg-4">
+            <div class="saved-workers-card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Saved users</h5>
+                    <a href="#" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for worker in saved_worker %}
+                        <a href="{{ url_for('profile', user_id=worker.id) }}" class="list-group-item list-group-item-action border-0 py-3 px-4">
+                            <div class="d-flex align-items-center">
+                                <div class="position-relative">
+                                    <img src="{{ url_for('static', filename='uploads/' + worker.photo) }}" 
+                                         class="rounded-circle me-3 worker-avatar" width="48" height="48" 
+                                         alt="{{ worker.full_name }}"
+                                         data-fallback-src="{{ url_for('static', filename='img/default-avatar.png') }}">
+                                    <span class="position-absolute bottom-0 start-75 translate-middle p-1 bg-success border border-2 border-white rounded-circle">
+                                        <span class="visually-hidden">Online</span>
+                                    </span>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h6 class="mb-0">{{ worker.full_name }}</h6>
+                                        <small class="text-muted">{{ worker.rating|default('4.8') }} <i class="fas fa-star text-warning"></i></small>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">{{ worker.work }}</small>
+                                        <a href="{{ url_for('chat', user_id=worker.id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                            <i class="far fa-comment-dots"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Messages -->
+        <div class="col-12">
+            <div class="messages-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Recent Messages</h5>
+                    <a href="{{ url_for('messages') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        {% for chat in recent_chats %}
+                        <div class="col-12 col-md-6 col-lg-4">
+                            <div class="card h-100 border-0 shadow-sm-hover" style="transition: var(--transition);">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="position-relative me-3">
+                                            <img src="{{ url_for('static', filename='uploads/' + chat.worker.photo) }}" 
+                                                 class="rounded-circle worker-avatar" width="48" height="48" 
+                                                 alt="{{ chat.worker.full_name }}"
+                                                 data-fallback-src="{{ url_for('static', filename='img/default-avatar.png') }}">
+                                            {% if chat.worker.is_online %}
+                                            <span class="position-absolute bottom-0 end-0 p-1 bg-success border border-2 border-white rounded-circle">
+                                                <span class="visually-hidden">Online</span>
+                                            </span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-0">{{ chat.worker.full_name }}</h6>
+                                            <small class="text-muted">{{ chat.last_message.timestamp|timeago }}</small>
+                                        </div>
+                                        {% if not chat.last_message.read %}
+                                        <span class="badge bg-primary rounded-pill">New</span>
+                                        {% endif %}
+                                    </div>
+                                    <p class="card-text text-muted mb-3">
+                                        {% if chat.last_message.sender_id == current_user.id %}
+                                            <i class="fas fa-reply text-muted me-1"></i>
+                                        {% endif %}
+                                        {{ chat.last_message.content|truncate(80) }}
+                                    </p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <a href="{{ url_for('chat', user_id=chat.worker.id) }}" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                                            <i class="far fa-comment-dots me-1"></i> Continue Chat
+                                        </a>
+                                        <div class="dropdown">
+                                            <button class="btn btn-link text-muted p-0" type="button" id="chatMenu{{ loop.index }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="fas fa-ellipsis-h"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="chatMenu{{ loop.index }}">
+                                                <li><a class="dropdown-item" href="#"><i class="far fa-trash-alt me-2"></i>Delete</a></li>
+                                                <li><a class="dropdown-item" href="#"><i class="far fa-archive me-2"></i>Archive</a></li>
+                                                <li><a class="dropdown-item" href="#"><i class="far fa-flag me-2"></i>Report</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Bootstrap tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+
+        // Initialize dropdowns
+        var dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'));
+        dropdownElementList.map(function (dropdownToggleEl) {
+            return new bootstrap.Dropdown(dropdownToggleEl);
+        });
+
+        // Animate numbers in stat cards
+        const statCards = document.querySelectorAll('.stat-card h2');
+        
+        const animateValue = function(element, start, end, duration) {
+            let startTimestamp = null;
+            const step = function(timestamp) {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                let value;
+                
+                if (element.textContent.includes('₹')) {
+                    value = '₹' + Math.floor(progress * (end - start) + start).toLocaleString();
+                } else {
+                    value = Math.floor(progress * (end - start) + start).toLocaleString();
+                }
+                
+                element.textContent = value;
+                
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        };
+
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    const text = entry.target.textContent.replace(/[^0-9.]/g, '');
+                    const value = parseFloat(text);
+                    if (!isNaN(value)) {
+                        animateValue(entry.target, 0, value, 1000);
+                    }
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        statCards.forEach(function(card) {
+            observer.observe(card);
+        });
+
+        // Add click handler for dropdown menu items
+        document.querySelectorAll('.dropdown-item').forEach(function(item) {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                // Handle dropdown item clicks here
+                console.log('Dropdown item clicked:', this.textContent.trim());
+            });
+        });
+
+        // Handle view all buttons
+        document.querySelectorAll('[href="#"]').forEach(function(link) {
+            link.addEventListener('click', function(e) {
+                if (this.getAttribute('href') === '#') {
+                    e.preventDefault();
+                    // Handle view all click
+                    console.log('View all clicked for:', this.closest('.card')?.querySelector('.card-title')?.textContent.trim() || 'section');
+                }
+            });
+        });
+    });
+
+    // Handle image loading errors
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set up error handlers for all worker avatars
+        document.querySelectorAll('.worker-avatar').forEach(function(img) {
+            const fallbackSrc = img.getAttribute('data-fallback-src');
+            if (fallbackSrc) {
+                img.addEventListener('error', function() {
+                    this.src = fallbackSrc;
+                });
+                
+                // Check if image fails to load immediately
+                if (!img.complete || (typeof img.naturalWidth !== 'undefined' && img.naturalWidth === 0)) {
+                    img.src = fallbackSrc;
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
