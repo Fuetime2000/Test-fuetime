@@ -44,7 +44,7 @@ razorpay==1.4.2
 stripe==7.6.0  # Alternative payment processor
 
 # File Processing
-Pillow==10.3.0  # For image processing
+Pillow==10.2.0  # For image processing
 python-magic==0.4.27  # For file type validation
 
 # Email
