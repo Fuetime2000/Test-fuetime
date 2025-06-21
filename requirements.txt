@@ -45,10 +45,10 @@ stripe==7.6.0  # Alternative payment processor
 
 # File Processing
 --only-binary=:all: Pillow==10.3.0  # For image processing (using pre-built wheel)
-python-magic==0.4.27  # For file type validation
+python-magic>=0.4.27  # Using >= to get a compatible version for Python 3.13
 
 # Email
-Flask-Mail==0.9.1
+Flask-Mail>=0.9.1  # Using >= to get a compatible version for Python 3.13
 
 # Monitoring & Logging
 sentry-sdk[flask]==1.34.0
