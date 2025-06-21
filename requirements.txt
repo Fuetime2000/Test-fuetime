@@ -9,27 +9,25 @@ click==8.1.7
 Flask-SQLAlchemy==3.1.1  # Updated for SQLAlchemy 2.0 compatibility
 SQLAlchemy==2.0.41  # Updated for Python 3.13 compatibility
 Flask-Migrate==4.0.5  # For database migrations
+alembic==1.12.1
 
 # Authentication & Security
 Flask-Login==0.6.3
-Flask-Session==0.5.0
 Flask-Talisman==1.1.0
 Flask-Limiter==3.5.0
-python-dotenv==1.0.0
 email-validator==2.1.0.post1
+Flask-Session==0.5.0
 
 # Real-time Communication
 Flask-SocketIO==5.3.5
 python-socketio==5.7.2
-# Using eventlet instead of gevent for better Python 3.13 compatibility
 eventlet==0.33.3
-# gevent and gevent-websocket are commented out as they're not compatible with Python 3.13 yet
-# gevent==23.9.1
-# gevent-websocket==0.10.1
+python-engineio==4.6.1
 
 # Internationalization
 Flask-Babel==4.0.0
 Babel==2.13.1
+pytz==2023.3.post1
 
 # Forms & Validation
 Flask-WTF==1.2.2
