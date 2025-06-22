@@ -842,6 +842,37 @@ def create_razorpay_client():
 # Initialize the client
 razorpay_client = create_razorpay_client()
 
+# Configure Socket.IO
+try:
+    from extensions import socketio
+    
+    # Initialize SocketIO with the app
+    socketio.init_app(
+        app,
+        cors_allowed_origins="*",
+        message_queue=os.environ.get('REDIS_URL'),
+        async_mode='gevent',
+        logger=True,
+        engineio_logger=True
+    )
+    
+    # Import and register socket event handlers
+    from blueprints.messages import register_socket_events
+    from events import register_socketio_events
+    
+    # Register message handlers
+    register_socket_events()
+    
+    # Register other socket events
+    register_socketio_events()
+    
+    print("Socket.IO initialized successfully")
+except Exception as e:
+    print(f"Error initializing Socket.IO: {e}")
+    import traceback
+    traceback.print_exc()
+    socketio = None
+
 # Configure supported languages
 app.config['BABEL_DEFAULT_LOCALE'] = 'en'
 app.config['BABEL_LANGUAGES'] = ['en', 'hi', 'mr', 'gu', 'ta', 'te']
@@ -4443,7 +4474,27 @@ if __name__ == '__main__':
     sys.stdout.reconfigure(encoding='utf-8')
     sys.stderr.reconfigure(encoding='utf-8')
     
-    print("\n--- Application Startup Diagnostics ---")
+    # Initialize socketio handlers
+    init_socketio_handlers()
+    
+    # Get port from environment variable or use default
+    port = int(os.environ.get('PORT', 5000))
+    
+    # Run the app with Socket.IO
+    if socketio:
+        print(f"Starting server with WebSocket support on port {port}")
+        socketio.run(
+            app,
+            host='0.0.0.0',
+            port=port,
+            debug=True,
+            use_reloader=True,
+            allow_unsafe_werkzeug=True,
+            log_output=True
+        )
+    else:
+        print("Warning: Running without WebSocket support")
+        app.run(host='0.0.0.0', port=port, debug=True)
     print(f"Python Version: {sys.version}")
     print(f"Database URI: {app.config['SQLALCHEMY_DATABASE_URI']}")
     

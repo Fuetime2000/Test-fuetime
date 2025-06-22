@@ -21,10 +21,15 @@ Flask-Session==0.5.0
 # Real-time Communication
 Flask-SocketIO==5.3.5
 python-socketio==5.7.2
-eventlet==0.33.3
 python-engineio==4.6.1
-gevent-websocket>=0.10.1
-gevent>=22.10.2
+
+eventlet==0.33.3  # WebSocket server for production
+gevent==22.10.2
+gevent-websocket==0.10.1
+simple-websocket==1.0.0  # Fallback WebSocket server
+
+# Ensure we have the latest websocket-client
+websocket-client==1.6.1
 
 # Internationalization
 Flask-Babel==4.0.0
