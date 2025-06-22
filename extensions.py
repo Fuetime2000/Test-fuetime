@@ -15,15 +15,14 @@ migrate = Migrate()
 babel = Babel()
 cache = Cache()
 
-# Configure SocketIO with gevent
+# Configure SocketIO with eventlet
 try:
-    import gevent
-    from gevent import monkey
-    monkey.patch_all()
-    print("Using gevent for SocketIO")
-    async_mode = 'gevent'
+    import eventlet
+    eventlet.monkey_patch()
+    print("Using eventlet for SocketIO")
+    async_mode = 'eventlet'
 except ImportError:
-    print("Warning: gevent is not available. Using threading mode")
+    print("Warning: eventlet is not available. Using threading mode")
     async_mode = 'threading'
 
 # Initialize SocketIO with proper WebSocket configuration

@@ -23,9 +23,7 @@ Flask-SocketIO==5.3.5
 python-socketio==5.7.2
 python-engineio==4.6.1
 
-eventlet==0.40.0  # WebSocket server for production - updated for Python 3.11
-gevent==22.10.2  # Version known to work well with Python 3.11
-gevent-websocket==0.10.1  # Compatible with gevent 22.10.2
+eventlet==0.40.0  # Primary WebSocket server for production - compatible with Python 3.11
 simple-websocket==1.0.0  # Fallback WebSocket server
 
 # Ensure we have the latest websocket-client
