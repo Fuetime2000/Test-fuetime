@@ -63,3 +63,4 @@ flake8==6.1.0
 python-dotenv==1.0.0  # For loading .env files
 python-dateutil==2.8.2
 pytz==2023.3.post1
+Flask-Compress==1.16.0  # For response compression

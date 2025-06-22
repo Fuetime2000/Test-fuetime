@@ -5,6 +5,7 @@ services:
     buildCommand: |
       python3.11 -m pip install --upgrade pip
       python3.11 -m pip install --no-cache-dir -r requirements.txt
+      python3.11 -c "from app import create_app; app = create_app(); app.app_context().push(); from models.base import db; db.create_all()"
     startCommand: python3.11 -m gunicorn --bind 0.0.0.0:10000 --worker-class eventlet --workers 1 app:app
     envVars:
       - key: PYTHON_VERSION
@@ -19,3 +20,5 @@ services:
         value: 1
       - key: PYTHONHASHSEED
         value: random
+      - key: DATABASE_URL
+        value: postgresql:///fuetime  # This will be overridden by Render's PostgreSQL addon
