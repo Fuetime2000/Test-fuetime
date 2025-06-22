@@ -3,15 +3,26 @@ import sys
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_migrate import Migrate
+from flask_mail import Mail
 from flask_babel import Babel
 from flask_caching import Cache
 from flask_socketio import SocketIO
 from flask_wtf.csrf import CSRFProtect
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 # Initialize extensions
 db = SQLAlchemy()
 login_manager = LoginManager()
+login_manager.login_view = 'auth.login'
+login_manager.login_message_category = 'info'
 migrate = Migrate()
+mail = Mail()
+csrf = CSRFProtect()
+limiter = Limiter(
+    key_func=get_remote_address,
+    default_limits=["200 per day", "50 per hour"]
+)
 babel = Babel()
 cache = Cache()
 
@@ -41,6 +52,4 @@ socketio = SocketIO(
     async_handlers=True,
     always_connect=True
 )
-
-# Initialize CSRF protection
 csrf = CSRFProtect()

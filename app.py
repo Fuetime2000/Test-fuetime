@@ -835,7 +835,7 @@ try:
         app,
         cors_allowed_origins="*",
         message_queue=os.environ.get('REDIS_URL'),
-        async_mode='gevent',
+        async_mode=socketio.async_mode,  # Use the async_mode from extensions
         logger=True,
         engineio_logger=True
     )
@@ -4934,7 +4934,7 @@ if __name__ == '__main__':
         try:
             socketio.init_app(app,
                            cors_allowed_origins="*",
-                           async_mode='eventlet',
+                           async_mode=socketio.async_mode,  # Use the async_mode from the socketio instance
                            engineio_logger=True,
                            logger=True,
                            ping_timeout=60,
@@ -4955,32 +4955,8 @@ if __name__ == '__main__':
             debug=app.debug,
             use_reloader=app.debug,
             allow_unsafe_werkzeug=True,
-            log_output=True
-        )
-        
-    except Exception as run_err:
-        error_msg = '\n--- APPLICATION RUN ERROR ---\n'
-        error_msg += f'Error: {run_err}\n'
-        error_msg += '\n'.join(traceback.format_exception(type(run_err), run_err, run_err.__traceback__))
-        
-        # Log to file if possible, otherwise print to console
-        if 'app' in locals() and hasattr(app, 'logger'):
-            app.logger.critical(error_msg)
-        else:
-            print(error_msg, file=sys.stderr)
-            
-        sys.exit(1)
-
-        # Start the SocketIO server
-        app.logger.info('Starting SocketIO server...')
-        socketio.run(
-            app,
-            host='0.0.0.0',
-            port=5000,
-            debug=app.debug,
-            use_reloader=app.debug,
-            allow_unsafe_werkzeug=True,
-            log_output=True
+            log_output=True,
+            **{'reload': True} if app.debug else {}
         )
         
     except Exception as run_err:
