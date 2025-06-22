@@ -49,9 +49,10 @@ class PortfolioProject(db.Model):
     
     # Relationship to technologies
     technologies = db.relationship('ProjectTechnology', 
-                                 backref='project_ref',
+                                 back_populates='project',
                                  lazy='dynamic',
-                                 cascade='all, delete-orphan')
+                                 cascade='all, delete-orphan',
+                                 overlaps="project_ref,technologies")
     
     def __repr__(self):
         return f'<PortfolioProject {self.title}>'
@@ -63,8 +64,10 @@ class ProjectTechnology(db.Model):
     project_id = db.Column(db.Integer, db.ForeignKey('portfolio_projects.id', ondelete='CASCADE'), nullable=False, index=True)
     name = db.Column(db.String(100), nullable=False)
     
-    # Simple relationship without backref
-    project = db.relationship('PortfolioProject')
+    # Relationship with PortfolioProject
+    project = db.relationship('PortfolioProject', 
+                           back_populates='technologies',
+                           overlaps="project_ref,technologies")
     
     def __repr__(self):
         return f'<ProjectTechnology {self.name} (Project ID: {self.project_id})>'

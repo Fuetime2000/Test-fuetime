@@ -1,11 +1,12 @@
 from datetime import datetime
 from extensions import db
 
-project_technologies = db.Table('portfolio_project_technologies',
-    db.Column('project_id', db.Integer, db.ForeignKey('portfolio_projects.id'), primary_key=True),
-    db.Column('technology_id', db.Integer, db.ForeignKey('portfolio_technologies.id'), primary_key=True),
-    extend_existing=True
-)
+# This table is no longer needed as we're using the ProjectTechnology model
+# project_technologies = db.Table('portfolio_project_technologies',
+#     db.Column('project_id', db.Integer, db.ForeignKey('portfolio_projects.id'), primary_key=True),
+#     db.Column('technology_id', db.Integer, db.ForeignKey('portfolio_technologies.id'), primary_key=True),
+#     extend_existing=True
+# )
 
 class Technology(db.Model):
     __tablename__ = 'portfolio_technologies'
@@ -34,8 +35,10 @@ class Project(db.Model):
     
     # Relationships
     user = db.relationship('User', backref=db.backref('projects', lazy='dynamic'))
-    technologies = db.relationship('Technology', secondary=project_technologies, lazy='joined',
-                                 backref=db.backref('projects', lazy=True))
+    
+    # This relationship is now handled by the ProjectTechnology model
+    # technologies = db.relationship('Technology', secondary=project_technologies, lazy='joined',
+    #                             backref=db.backref('projects', lazy=True))
 
     def __repr__(self):
         return f'<Project {self.title}>'

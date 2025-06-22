@@ -1,7 +1,15 @@
 # Import all models to ensure they are registered with SQLAlchemy
 from .base import db
+
+# Import models in a way that avoids circular imports
+# First, import models that don't have relationships
 from .user import User
-from .portfolio import Portfolio, PortfolioProject, ProjectTechnology, PortfolioSkill, PortfolioRating
+from .help_request import HelpRequest
+
+# Then import models with relationships
+from .portfolio import Portfolio, PortfolioSkill, PortfolioRating
+from .project import Project, Technology
+from .portfolio import PortfolioProject, ProjectTechnology
 from .message import Message
 from .transaction import Transaction
 from .contact_request import ContactRequest
@@ -10,8 +18,6 @@ from .Call import Call
 from .review import Review
 from .donation import Donation
 from .behavior_tracking import UserBehavior, FraudAlert
-from .project import Project, Technology
-from .help_request import HelpRequest
 from .user_interaction import UserInteraction
 
 # Create a dictionary of all models for easy access
