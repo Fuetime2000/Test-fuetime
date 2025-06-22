@@ -1,3 +1,5 @@
+import os
+import sys
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_migrate import Migrate
@@ -5,7 +7,6 @@ from flask_babel import Babel
 from flask_caching import Cache
 from flask_socketio import SocketIO
 from flask_wtf.csrf import CSRFProtect
-import sys
 
 # Initialize extensions
 db = SQLAlchemy()
@@ -36,7 +37,6 @@ socketio = SocketIO(
     manage_session=False,  # Let Flask handle the session
     allow_upgrades=True,
     http_compression=True,
-    cors_allowed_origins=["*"],
     max_http_buffer_size=1e8,  # 100MB max message size
     message_queue='redis://' if os.environ.get('REDIS_URL') else None,
     async_handlers=True,
