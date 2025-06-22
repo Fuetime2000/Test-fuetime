@@ -18,6 +18,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     python3-dev \
     libpq-dev \
+    libjpeg-dev \
+    zlib1g-dev \
+    libtiff5-dev \
+    libfreetype6-dev \
+    liblcms2-dev \
+    libwebp-dev \
+    tcl8.6-dev \
+    tk8.6-dev \
+    python3-tk \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
