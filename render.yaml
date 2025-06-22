@@ -6,7 +6,7 @@ services:
       python3.11 -m pip install --upgrade pip
       python3.11 -m pip install --no-cache-dir -r requirements.txt
       python3.11 -c "from app import create_app; app = create_app(); app.app_context().push(); from models.base import db; db.create_all()"
-    startCommand: python3.11 -m gunicorn --bind 0.0.0.0:10000 --worker-class eventlet --workers 1 app:app
+    startCommand: python3.11 -m gunicorn --bind 0.0.0.0:10000 --worker-class eventlet --workers 1 --worker-connections 1000 --timeout 120 --keep-alive 5 app:app
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.9
