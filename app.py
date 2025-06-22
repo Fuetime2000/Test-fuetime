@@ -35,6 +35,14 @@ from extensions import db
 from flask_migrate import Migrate
 migrate = Migrate(app, db)
 
+# Configure cache
+app.config['CACHE_TYPE'] = 'simple'  # Use simple in-memory cache for development
+app.config['CACHE_DEFAULT_TIMEOUT'] = 300  # 5 minutes
+
+# Initialize cache with app
+from extensions import cache
+cache.init_app(app)
+
 # Import SocketIO
 try:
     from extensions import socketio
@@ -2504,8 +2512,17 @@ def edit_profile():
                 cache_key = f'profile_{current_user.id}'
                 if cache_key in profile_cache:
                     del profile_cache[cache_key]
-                cache.delete_memoized(profile, current_user.id)
-                cache.delete_memoized(get_cached_profile, current_user.id)
+                # Safely clear cache for profile function if it's memoized
+                try:
+                    cache.delete_memoized(profile, current_user.id)
+                except AttributeError:
+                    pass  # Ignore if function is not memoized
+                    
+                # Clear cache for get_cached_profile function if it's memoized
+                try:
+                    cache.delete_memoized(get_cached_profile, current_user.id)
+                except AttributeError:
+                    pass  # Ignore if function is not memoized
                 print("Cache cleared successfully")
             except Exception as cache_error:
                 print(f"Cache clearing error (non-critical): {cache_error}")
