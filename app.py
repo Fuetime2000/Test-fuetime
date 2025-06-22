@@ -234,19 +234,7 @@ def test_profile_pic():
     
     return jsonify(result)
 
-@login_manager.user_loader
-def load_user(user_id):
-    try:
-        # Try to get the user from the database
-        user = User.query.get(int(user_id))
-        if user:
-            # Update the user's last seen timestamp
-            user.update_last_seen()
-            db.session.commit()
-        return user
-    except Exception as e:
-        app.logger.error(f"Error loading user {user_id}: {str(e)}")
-        return None
+# Removed duplicate load_user function - using the cached version below
 
 # Configure logging
 if not os.path.exists('logs'):
@@ -334,13 +322,11 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'pdf', 'doc', 'docx', 'txt'}
 MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max file size
 
 def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# Set max content length to 16MB
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
-
-# Set upload folder
+# Configure file upload settings
+app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
+app.config['ALLOWED_EXTENSIONS'] = ALLOWED_EXTENSIONS
 app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'uploads')
 
 # Import and initialize blueprints
@@ -689,17 +675,7 @@ FlaskSession(app)
 # Cache already configured above
 
 # Configure upload settings
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'pdf', 'doc', 'docx'}
-MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max file size
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
-app.config['ALLOWED_EXTENSIONS'] = ALLOWED_EXTENSIONS
-
-# File upload settings
-app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'uploads')
+# File upload configuration is now consolidated at the top of the file
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 
 # Ensure upload folders exist
@@ -3444,17 +3420,7 @@ def handle_disconnect():
         current_user.last_active = datetime.utcnow()
         db.session.commit()
 
-@socketio.on('join')
-def on_join(data):
-    room = data.get('room')
-    if room and current_user.is_authenticated:
-        join_room(room)
-
-@socketio.on('leave')
-def on_leave(data):
-    room = data.get('room')
-    if room and current_user.is_authenticated:
-        leave_room(room)
+# Removed simple on_join and on_leave handlers - using more robust versions below
 
 @app.route('/chat/<int:user_id>', methods=['GET', 'POST'])
 @login_required
@@ -3583,7 +3549,16 @@ def chat(user_id):
 @login_manager.user_loader
 @cache.memoize(timeout=300)
 def load_user(user_id):
-    return db.session.get(User, int(user_id))
+    try:
+        user = db.session.get(User, int(user_id))
+        if user:
+            # Update the user's last seen timestamp
+            user.update_last_seen()
+            db.session.commit()
+        return user
+    except Exception as e:
+        app.logger.error(f"Error loading user {user_id}: {str(e)}")
+        return None
 
 @app.after_request
 def after_request(response):
