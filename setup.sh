@@ -6,7 +6,7 @@ set -e
 # Update package lists
 apt-get update
 
-# Install required packages for Python installation
+# Install required packages for Python installation and Pillow
 apt-get install -y --no-install-recommends \
     build-essential \
     zlib1g-dev \
@@ -21,6 +21,19 @@ apt-get install -y --no-install-recommends \
     llvm \
     libbz2-dev \
     libsqlite3-dev \
+    # Pillow dependencies
+    libjpeg-dev \
+    libtiff5-dev \
+    libfreetype6-dev \
+    liblcms2-dev \
+    libwebp-dev \
+    tcl8.6-dev \
+    tk8.6-dev \
+    python3-tk \
+    libopenjp2-7-dev \
+    libimagequant-dev \
+    libraqm-dev \
+    libxcb1-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Download and install Python 3.11.9

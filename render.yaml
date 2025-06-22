@@ -3,8 +3,28 @@ services:
     name: fuetime
     runtime: python
     buildCommand: |
+      # Install system dependencies for Pillow
+      apt-get update && apt-get install -y --no-install-recommends \
+          libjpeg-dev \
+          zlib1g-dev \
+          libtiff5-dev \
+          libfreetype6-dev \
+          liblcms2-dev \
+          libwebp-dev \
+          tcl8.6-dev \
+          tk8.6-dev \
+          python3-tk \
+          libopenjp2-7-dev \
+          libimagequant-dev \
+          libraqm-dev \
+          libxcb1-dev \
+          && rm -rf /var/lib/apt/lists/*
+      
+      # Install Python dependencies
       python3.11 -m pip install --upgrade pip
       python3.11 -m pip install --no-cache-dir -r requirements.txt
+      
+      # Initialize database
       python3.11 -c "from app import create_app; app = create_app(); app.app_context().push(); from models import *; db.create_all()"
       python3.11 init_db.py
     startCommand: python3.11 -m gunicorn --bind 0.0.0.0:10000 --worker-class eventlet --workers 1 --worker-connections 1000 --timeout 120 --keep-alive 5 app:app

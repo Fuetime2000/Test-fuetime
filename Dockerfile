@@ -15,9 +15,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc \
+    build-essential \
     python3-dev \
     libpq-dev \
+    # Pillow dependencies
     libjpeg-dev \
     zlib1g-dev \
     libtiff5-dev \

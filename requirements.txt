@@ -45,7 +45,8 @@ razorpay==1.4.2
 stripe==7.6.0  # Alternative payment processor
 
 # File Processing
-Pillow==10.3.0  # For image processing
+# Pillow will be installed with system dependencies
+Pillow==10.0.0 --no-binary :all:  # For image processing
 python-magic>=0.4.27  # Using >= to get a compatible version for Python 3.13
 
 # Email
